@@ -10,6 +10,7 @@ export const metadata = {
   openGraph: {
     title: 'Tom',
     description: 'everything about me :)',
+    url: "someurl"
   },
 }
 
@@ -20,8 +21,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-            <Header />
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <Header />
+          {children}
+        </body>
     </html>
   )
 }
