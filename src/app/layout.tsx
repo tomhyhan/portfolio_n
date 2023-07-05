@@ -7,10 +7,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
   title: "Tom's Portfolio/blog",
   description: 'everything about me :)',
-//   openGraph: {
-//     title: 'Tom',
-//     description: 'everything about me :)',
-//   },
+  openGraph: {
+    title: 'Tom',
+    description: 'everything about me :)',
+    url: "someurl"
+  },
 }
 
 export default function RootLayout({
@@ -21,9 +22,8 @@ export default function RootLayout({
   return (
     <html lang="en">
         <body className={inter.className}>
-            <Header />
-            {children}
-            
+          <Header />
+          {children}
         </body>
     </html>
   )
