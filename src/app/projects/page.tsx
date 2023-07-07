@@ -1,9 +1,10 @@
 import Image from 'next/image'
+import ProjectTabs from './../../components/project_tabs';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      project page
-    </main>
+    <>
+      <ProjectTabs />
+    </>
   )
 }
