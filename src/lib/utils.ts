@@ -10,3 +10,7 @@ export function getCount(filter: string | null) {
     return acc + 0;
   }, 0);
 }
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

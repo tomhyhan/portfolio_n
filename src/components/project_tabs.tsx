@@ -7,10 +7,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Project from './project';
 import { v4 as uuidv4 } from 'uuid';
+import { delay } from '@/lib/utils';
+
+
 
 export default function ProjectTabs() {
     const [currentCategory, setCurrentCategory] = useState("All");
-    const handleCategoryClick=(category: string) => {
+    const [disappear, setDisappear] = useState(false);
+    const handleCategoryClick= async (category: string) => {
+      setDisappear(true)
+      await delay(250)
+      setDisappear(false)
       setCurrentCategory(category)
     }
 
@@ -31,7 +38,10 @@ export default function ProjectTabs() {
             if(currentCategory == "All") return true;
             else return project.category == currentCategory;
             }).map(project => 
-              <Project key={uuidv4()} project={project} />
+              <Project 
+                key={uuidv4()} 
+                project={project} 
+                disappear={disappear}/>
             )}
         </div>
       </main>
