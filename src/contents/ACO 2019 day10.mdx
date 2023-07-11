@@ -1,0 +1,45 @@
+---
+title: The Adcent of Rust - AOC 2019 day 10"
+slug: "advent-of-code-2019-day-10"
+description: "Solving the advent of code 2019 day 10 in Rust"
+publishedAt: "2023-07-10"
+status: "published"
+---
+
+In this solution, I will be walking though my solution to the advent of code 2019 day 10, 
+
+
+fn move_moons(&mut self, steps:usize) -> i32 {
+    let mut total_energy = 0;
+    for step in 0..steps {
+        for i in 0..self.moons.len() {
+            for j in 0..self.moons.len() {
+                if i == j {
+                    continue
+                }
+                let other_moon = self.moons[j].clone();
+                let moon = &mut self.moons[i];
+                moon.apply_gravity(other_moon);
+            }
+        }
+
+        for moon in self.moons.iter_mut() {
+            moon.apply_velocity();
+            if step == steps -1 {
+                total_energy += moon.calculate_total_energy()
+            }
+        }
+    }
+    println!("total_energy - {:?}", total_energy);
+    total_energy
+}
+
+> cargo test q12
+
+Running unittests src\main.rs
+
+running 1 test
+test q12::test::total_energy_after_100steps ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.01s
+
