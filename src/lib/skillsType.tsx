@@ -22,6 +22,6 @@ export const skillTypes : SkillTypes = {
     frameworks: [{image: "react1", tag: "React" },
                 {image: "next", tag: "Nextjs" },
                 {image: "angular", tag: "Angular" }],
-    devOps: [{image: "aws", tag: "AWS / Cloud" },
+    devOps: [{image: "aws", tag: "AWS/ Cloud" },
                 {image: "docker", tag: "Containers" }],
 }
