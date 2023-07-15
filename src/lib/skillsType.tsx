@@ -4,11 +4,11 @@ export type SkillTypes = {
         image: string;
         tag: string;
     }[];
-    frameworks: {
+    Frameworks: {
         image: string;
         tag: string;
     }[];
-    devOps: {
+    DevOps: {
         image: string;
         tag: string;
     }[];
@@ -19,9 +19,9 @@ export const skillTypes : SkillTypes = {
                         {image: "typescript", tag: "Typescript" },
                         {image: "javascript", tag: "Javascript" },
                         {image: "python", tag: "Python" }],
-    frameworks: [{image: "react1", tag: "React" },
+    "Frameworks": [{image: "react1", tag: "React" },
                 {image: "next", tag: "Nextjs" },
                 {image: "angular", tag: "Angular" }],
-    devOps: [{image: "aws", tag: "AWS/ Cloud" },
+    DevOps: [{image: "aws", tag: "AWS/ Cloud" },
                 {image: "docker", tag: "Containers" }],
 }
