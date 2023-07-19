@@ -1,14 +1,15 @@
 ---
-title: The Adcent of Rust - AOC 2019 day 6"
-slug: "advent-of-code-2019-day-6"
-description: "Solving the advent of code 2019 day 6 in Rust"
-publishedAt: "2023-07-05"
-status: "published"
+title: The Advent of Rust - AOC 2019 day 6"
+slug: 'advent-of-code-2019-day-6'
+description: 'Solving the advent of code 2019 day 6 in Rust'
+publishedAt: '2023-07-05'
+status: 'published'
+tags: 'dfs,graph'
 ---
 
 ## Day 6: Universal Orbit Map
 
-In this solution, I will be going through my solution to the Advent of Code 2019 day 6 challenge in Rust. The challenge can be found [here](https://adventofcode.com/2019/day/6). 
+In this solution, I will be going through my solution to the Advent of Code 2019 day 6 challenge in Rust. The challenge can be found [here](https://adventofcode.com/2019/day/6).
 
 ### Part 1
 
@@ -27,15 +28,15 @@ We are given an input that looks like this:
     J)K
     K)L
 ```
-<note>
-    this is a sample input, the actual input is much larger
-</note>
+
+<note>this is a sample input, the actual input is much larger</note>
 
 The input is a list of orbits, where each orbit is a pair of objects. The first object is in orbit around the second object. The second object is orbitting around the first object.
 
 We are asked to count the total number of direct and indirect orbits in the input. In the sample input above, there are 42 direct and indirect orbits.
 
 visually it looks like this:
+
 ```text
         G - H       J - K - L
        /           /
@@ -66,7 +67,7 @@ impl Map {
     }
 }
 ```
- 
+
 Now, we can use a `depth first search` to count the number of direct and indirect orbits. We start at the root node (COM), and recursively traverse the graph. We can keep track of the depth of the current node, and add it to the total number of orbits.
 
 ```rust
@@ -86,13 +87,15 @@ Now, we can use a `depth first search` to count the number of direct and indirec
         num_of_orbits
     }
 ```
+
 <note>
-    dfs function does not take self as a parameter to simplify the code. Otherwise, rust's borrow checker will complain about multiple mutable borrows.
+  dfs function does not take self as a parameter to simplify the code.
+  Otherwise, rust's borrow checker will complain about multiple mutable borrows.
 </note>
 
 ### Part 2
 
-In part 2, we are asked to find the minimum number of orbital transfers required to move from the object YOU are orbiting to the object SAN is orbiting. 
+In part 2, we are asked to find the minimum number of orbital transfers required to move from the object YOU are orbiting to the object SAN is orbiting.
 
 ```text
                           YOU
@@ -104,12 +107,11 @@ COM - B - C - D - E - F
                 I - SAN
 ```
 
-
 In the sample input above, the minimum number of orbital transfers required is 4.
 
 My first intuition was to keep records of parents of each child node which allow us to backtrack from the child node to the parent node.
 
-Then, we can split our problem into 3 steps. 
+Then, we can split our problem into 3 steps.
 
 First, we find the distance between the root node to YOU and SAN by modifying our dfs function to dfs_to_target.
 
@@ -124,15 +126,15 @@ Lastly, we move up a graph until we find the lowest common ancestor of YOU and S
 
         let mut distance = 0;
         distance += (you as i32 - san as i32).abs() as usize;
-        
+
         let (mut current, target, target_depth,mut seek_depth) = if san > you {
             ("SAN".to_string(),"YOU".to_string(),you, san)
         } else {
             ("YOU".to_string(),"SAN".to_string(),san, you)
         };
-        
+
         while target_depth != seek_depth {
-            current = self.find_parent(&mut current); 
+            current = self.find_parent(&mut current);
             seek_depth -= 1;
         }
 
@@ -166,11 +168,14 @@ Lastly, we move up a graph until we find the lowest common ancestor of YOU and S
         num_of_orbits
     }
 ```
+
 <information>
-    we can further optimize by refactoring the code by spilting our min_traverse_distance() function. it will give us better readability and testability.
+  we can further optimize by refactoring the code by spilting our
+  min_traverse_distance() function. it will give us better readability and
+  testability.
 </information>
 
-When we run a program, we get: 
+When we run a program, we get:
 
 ```text
     227612

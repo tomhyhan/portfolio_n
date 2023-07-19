@@ -1,10 +1,11 @@
 ---
-title: The Adcent of Rust - AOC 2019 day 12"
-slug: "advent-of-code-2019-day-12"
-description: "Solving the advent of code 2019 day 12 in Rust"
-publishedAt: "2023-07-12"
-status: "published"
+title: The Advent of Rust - AOC 2019 day 12"
+slug: 'advent-of-code-2019-day-12'
+description: 'Solving the advent of code 2019 day 12 in Rust'
+publishedAt: '2023-07-12'
+status: 'published'
 ---
+
 ### Day 12: The N-Body Problem
 
 In this solution, I will be walking though my solution to the advent of code 2019 day 12. The challage can be found [here](https://adventofcode.com/2019/day/12).
@@ -12,25 +13,28 @@ In this solution, I will be walking though my solution to the advent of code 201
 ### Part 1
 
 We start with a given sample input:
+
 ```text
     <x=-1, y=0, z=2>
     <x=2, y=-10, z=-7>
     <x=4, y=-8, z=8>
     <x=3, y=5, z=-1>
 ```
-<information>The position represents four Largest moons of Jupiter: Io, Europa, Ganymede, and Callisto</information>
 
-We are asked to simulate the motion of the moons in given steps. First, we need to calculate the velocity by applying gravity. The gravity is calculated by comparing the position of axis to other axis. If the value of axis is greater, the we add 1 to the velocity. Else if the axis is smaller, we substract 1 to the velocity. The final calculated velocity is added to the current position.  
+<information>
+  The position represents four Largest moons of Jupiter: Io, Europa, Ganymede,
+  and Callisto
+</information>
 
-After repeating the steps, we are asked to calcuate the total enery of the system. The total energy is calculated by adding the absolute value of each axis of position and velocity, and multiplying them together. 
+We are asked to simulate the motion of the moons in given steps. First, we need to calculate the velocity by applying gravity. The gravity is calculated by comparing the position of axis to other axis. If the value of axis is greater, the we add 1 to the velocity. Else if the axis is smaller, we substract 1 to the velocity. The final calculated velocity is added to the current position.
+
+After repeating the steps, we are asked to calcuate the total enery of the system. The total energy is calculated by adding the absolute value of each axis of position and velocity, and multiplying them together.
 
 I will be using the following struct to represent the moon:
 
-To solve this problem we first need to parse our input. We could iterate each line of the text and use regex the extract the values and store them in a vector.  
+To solve this problem we first need to parse our input. We could iterate each line of the text and use regex the extract the values and store them in a vector.
 
-
-
-```rust
+````rust
 
 
 ```rust
@@ -68,3 +72,4 @@ test q12::test::total_energy_after_100steps ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.01s
 
+````

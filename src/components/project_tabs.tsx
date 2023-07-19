@@ -1,10 +1,7 @@
 "use client";
 import { projectCategories, projects } from '@/lib/projectType';
-import clsx from 'clsx';
 import React, { useState } from 'react'
 import CategoryBtn from './categoryBtn';
-import Link from 'next/link';
-import Image from 'next/image';
 import Project from './project';
 import { v4 as uuidv4 } from 'uuid';
 import { delay } from '@/lib/utils';
