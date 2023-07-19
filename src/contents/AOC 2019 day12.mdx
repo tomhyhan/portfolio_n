@@ -1,0 +1,196 @@
+---
+title: The Adcent of Rust - AOC 2019 day 12"
+slug: "advent-of-code-2019-day-12"
+description: "Solving the advent of code 2019 day 12 in Rust"
+publishedAt: "2023-07-12"
+status: "published"
+tags: 'heuristic,loop,regex'
+---
+### Day 12: The N-Body Problem
+
+In this solution, I will be walking though my solution to the advent of code 2019 day 12. The challage can be found [here](https://adventofcode.com/2019/day/12).
+
+### Part 1
+
+We start with a given sample input:
+```text
+    <x=-1, y=0, z=2>
+    <x=2, y=-10, z=-7>
+    <x=4, y=-8, z=8>
+    <x=3, y=5, z=-1>
+```
+<information>The position represents four Largest moons of Jupiter: Io, Europa, Ganymede, and Callisto</information>
+
+We are asked to simulate the motion of the moons in given steps. First, we need to calculate the velocity by applying gravity. The gravity is calculated by comparing the position of axis to other axis. If the value of axis is greater, the we add 1 to the velocity. Else if the axis is smaller, we substract 1 to the velocity. The final calculated velocity is added to the current position.  
+
+After repeating the steps, we are asked to calcuate the total enery of the system. The total energy is calculated by adding the absolute value of each axis of position and velocity, and multiplying them together. 
+
+I will be using the following struct to represent the moon:
+
+```rust
+struct Jupiter {
+    moons: Vec<Moon>
+}
+
+struct Moon {
+    pos: HashMap<char,i64>,
+    velocity: HashMap<char,i64>,
+}
+```
+
+To solve this problem we first need to parse our input. We could iterate each line of the text and use regex the extract the values and store them in a vector.  
+
+```rust
+fn new() -> Self {
+    let content = get_file("src/input/q12.txt").unwrap();
+    let moons: Vec<_>= content.lines().map(|line| {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"-?\d+").unwrap();
+        }
+        let nums: Vec<_>= RE.find_iter(line).collect();
+        let (x,y,z) = (nums[0].as_str().parse::<i64>().unwrap(),
+                        nums[1].as_str().parse::<i64>().unwrap(),
+                        nums[2].as_str().parse::<i64>().unwrap());
+        Moon::new(x,y,z)
+    }).collect();
+    Self {moons}
+}
+```
+Regex `-?\d+` is used to match any number with optional negative sign. 
+
+Once, we parse the output, we can iterate over the moons and apply gravity. We can use a nested loop to compare each moon to other moons. We can use the `apply_gravity` method to apply the gravity to the moon. 
+Then, we can apply the velocity to the moon by calling the `apply_velocity` method. 
+
+```rust
+fn move_moons(&mut self, steps:usize) -> i32 {
+    let mut total_energy = 0;
+    for step in 0..steps {
+        for i in 0..self.moons.len() {
+            for j in 0..self.moons.len() {
+                if i == j {
+                    continue
+                }
+                let other_moon = self.moons[j].clone();
+                let moon = &mut self.moons[i];
+                moon.apply_gravity(other_moon);
+            }
+        }
+
+        for moon in self.moons.iter_mut() {
+            moon.apply_velocity();
+            if step == steps -1 {
+                total_energy += moon.calculate_total_energy()
+            }
+        }
+    }
+    println!("total_energy - {:?}", total_energy);
+    total_energy
+}
+```
+At a last step, we calcualte the total energy by adding absolute value of each axis of position and velocity, and multiplying them together. 
+ 
+To make sure our code works as expected, I wrote a unit test to test the total energy after 100 steps. 
+
+```rust 
+> cargo test q12
+
+Running unittests src\main.rs
+
+running 1 test
+test q12::test::total_energy_after_100steps ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.01s
+```
+The test passes! and I got the correct answer. Now, we can move to the next part.
+
+### Part 2
+
+In the second part, we are asked to find the number of steps it takes to reach the first state that exactly matches a previous state.
+
+On my first attempt, I thought that I can use a hashmap to store the state of the entire moons and check if the state already exists. If the state exists, I can return the number of steps. However, this approach did not work. i.e. the program never terminated.
+
+I could not think of any solution of the top of my head. So, I decided to take a break and come back to it later.
+
+After a few hours, I came back to the problem and started to think about the problem again. I was still stuck, so I started to look and observe the input and problem from different a perspective. 
+
+I noticed that each axis of the moon is independent of each other. i.e. the x-axis does not affect the y-axis. This means that we can solve each axis independently. I also assumed that each axis will eventually repeat itself at some point, because they are constanly pulling and pushing each other by their gravity.
+
+Knowing these facts, I decided to modify my `move_moons` method to take an axis as an argument. Now, instead of calculating the total energy, it will return the number of steps it takes to reach the first state for each axis. 
+
+```rust
+fn move_moons(&mut self, final_steps:i64, to_find: Option<char>) -> i64 {
+    let mut total_energy = 0;
+    let mut previous = HashSet::new();
+    let mut steps = 0;
+    loop {
+        if let Some(c) = to_find {
+            let mut vec = vec![];
+            for moon in self.moons.iter_mut() {
+                vec.push(*moon.pos.get(&c).unwrap());
+                vec.push(*moon.velocity.get(&c).unwrap());
+            }
+
+            if !previous.insert(vec.clone()){
+                println!("{:?}", vec);
+                println!("{:?}", steps);
+                return steps                
+            }
+        }
+
+        for i in 0..self.moons.len() {
+            for j in 0..self.moons.len() {
+                if i == j {
+                    continue
+                }
+                let other_moon = self.moons[j].clone();
+                let moon = &mut self.moons[i];
+                moon.apply_gravity(other_moon);
+            }
+        }
+
+        for moon in self.moons.iter_mut() {
+            moon.apply_velocity();
+            total_energy += moon.calculate_total_energy()
+        }
+        if steps == final_steps - 1 {
+            break
+        }
+        total_energy = 0;
+        steps += 1;
+    }
+    total_energy
+}
+```
+
+After getting steps for each axis, we can use the `gcd` function to find the least common multiple of the three axis. 
+
+```rust
+fn gcd(x:i64,y:i64) -> i64 {
+    if y == 0 {x} else { gcd(y,x%y)}
+}
+
+    fn part2(&mut self) {
+        let mut jupiter = Jupiter::new();
+        let x = jupiter.move_moons(9999999, Some('x'));
+        let mut jupiter = Jupiter::new();
+        let y = jupiter.move_moons(9999999, Some('y'));
+        let mut jupiter = Jupiter::new();
+        let z = jupiter.move_moons(9999999, Some('z'));
+        
+        let gcd = gcd(x,y) * gcd(y,z);
+        println!("{:?}", x  * y * z / gcd);
+    }
+```
+If we run the program, we get the following output: `281691380235984`
+
+That's a correct answer!
+
+### Conclusion
+
+This was a fun problem to solve. I learned a lot about deeply thinking about the problem. Careful observation and looking at the problem from different perspective can give you intuition to solve the problem. 
+
+Additionally, When you can't think of any solution, it is always a good idea to take a break and come back to it later.
+
+If you are interested, you might also have some fun with [this](https://adventofcode.com/2019/day/12) problem.
+
+The full code can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2019/src/q12.rs)
