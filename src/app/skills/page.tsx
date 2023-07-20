@@ -1,4 +1,4 @@
-import Skill from '@/components/Skill'
+import Skill from '@/components/skill'
 import { skillTypes } from '@/lib/skillsType'
 import Image from 'next/image'
 
