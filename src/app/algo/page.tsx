@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { allPosts, Post } from 'contentlayer/generated'
 import { v4 as uuidv4 } from 'uuid';
 import PostCard from '@/components/postCard';

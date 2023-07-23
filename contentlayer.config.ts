@@ -38,6 +38,11 @@ const Post = defineDocumentType(() => ({
       description: 'tags of the post',
       required: true,
     },
+    postTitle: {
+      type: 'string',
+      description: 'title of the page',
+      required: true,
+    },
   },
   computedFields: {
     url: {
