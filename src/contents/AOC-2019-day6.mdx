@@ -7,7 +7,7 @@ status: 'solved'
 tags: 'dfs,graph'
 ---
 
-## Day 6: Universal Orbit Map
+# Day 6: Universal Orbit Map
 
 In this solution, I will be going through my solution to the Advent of Code 2019 day 6 challenge in Rust. The challenge can be found [here](https://adventofcode.com/2019/day/6).
 
@@ -88,10 +88,10 @@ Now, we can use a `depth first search` to count the number of direct and indirec
     }
 ```
 
-<note>
+<Note>
   dfs function does not take self as a parameter to simplify the code.
   Otherwise, rust's borrow checker will complain about multiple mutable borrows.
-</note>
+</Note>
 
 ### Part 2
 
@@ -169,11 +169,11 @@ Lastly, we move up a graph until we find the lowest common ancestor of YOU and S
     }
 ```
 
-<information>
+<Information>
   we can further optimize by refactoring the code by spilting our
   min_traverse_distance() function. it will give us better readability and
   testability.
-</information>
+</Information>
 
 When we run a program, we get:
 

@@ -1,13 +1,18 @@
 import { Post } from 'contentlayer/generated'
 import { format, parseISO } from 'date-fns'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
 export default function PostCard({post}: {
   post: Post
 }) {
   return (
-    <div className="max-w-sm rounded-lg overflow-hidden shadow-lg w-[28%] mx-[2%] mb-5">
+    <Link href={`/algo/${post.slug}`} className="max-w-sm rounded-lg 
+        overflow-hidden shadow-lg mb-9 
+        sm:w-[45%] mx-auto 
+        lg:w-[28%]  
+        hover:-translate-y-5">
         <Image width={300} height={300} className="w-full h-32" src={`/algo/${post.slug}.png`} alt="Sunset in the mountains" />
         <div className="px-6 py-4 ">
             <div className="font-bold text-base mb-2">{post.title}</div>
@@ -20,6 +25,6 @@ export default function PostCard({post}: {
               <span key={idx} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-2">#{tag}</span>
             ))}
         </div>
-    </div>
+    </Link>
   )
 }

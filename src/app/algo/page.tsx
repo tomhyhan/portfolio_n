@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen items-start 
-                justify-start py-12 px-3 w-full flex-wrap">
+                justify-center py-12 px-3 w-full flex-wrap">
       {posts.map((post: Post,) => (
         <PostCard key={uuidv4()} post={post} />
       ))}
