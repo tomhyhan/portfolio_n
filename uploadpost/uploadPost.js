@@ -12,8 +12,8 @@ import {
 const client = new DynamoDBClient({
   region: 'us-east-2',
   credentials: {
-    accessKeyId: 'AKIAZMMEEZFAV6UZDYH5',
-    secretAccessKey: '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',
+    accessKeyId: '',
+    secretAccessKey: '',
   },
 });
 const TABLENAME = 'posts';
