@@ -39,3 +39,7 @@ plan.txt
 
 #contentlayer
 .contentlayer
+
+#uploadpost
+uploadpost/node_modules
+uploadpost/.env

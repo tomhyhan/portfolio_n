@@ -18,6 +18,7 @@
     "@opentelemetry/semantic-conventions": "1.13.0"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.370.0",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@types/node": "20.3.2",
