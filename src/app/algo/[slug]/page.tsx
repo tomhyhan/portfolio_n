@@ -10,9 +10,7 @@ export async function generateStaticParams() {
 
 export default async function Page({params: {slug}}: {params: {slug: string}}) {
     const post = allPosts.find((post) => post.slug === slug)
-    const getView = await fetch("http://localhost:3000/api/posts" + `/${slug}`)
-    const getViewJson = await getView.json()
-    
+
     if (!post) {
         notFound()
     }
@@ -23,7 +21,6 @@ export default async function Page({params: {slug}}: {params: {slug: string}}) {
                         lg:px-28 
                         md:px-20 
                         ">
-                            {getViewJson.test}
             <h1 className="text-3xl text-center">{post?.postTitle}</h1>
             <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700 mb-16"/>
             <MdxComponentWraper code={post.body.code} />

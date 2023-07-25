@@ -1,18 +1,40 @@
-import { getPostView } from '@/lib/postData';
+import { getPostView, updateView } from '@/lib/postData';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   req: NextRequest,
   { params: { slug } }: { params: { slug: string } }
 ) {
-  const data = await getPostView(slug);
-  // try {
-  //     await
-  // }
-  console.log('slug', slug);
-  console.log('data', data);
-
-  return NextResponse.json({ test: '123' });
+  try {
+    const view = await getPostView(slug);
+    return NextResponse.json({ view: parseInt(view!) });
+  } catch (err) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    } else {
+      return NextResponse.json(
+        { error: 'Internal Server Error' },
+        { status: 500 }
+      );
+    }
+  }
 }
 
-async function POST(Request: NextRequest) {}
+export async function POST(
+  req: NextRequest,
+  { params: { slug } }: { params: { slug: string } }
+) {
+  try {
+    const views = await updateView(slug);
+    return NextResponse.json({ views });
+  } catch (err) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    } else {
+      return NextResponse.json(
+        { error: 'Internal Server Error' },
+        { status: 500 }
+      );
+    }
+  }
+}
