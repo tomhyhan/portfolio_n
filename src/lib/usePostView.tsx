@@ -1,23 +1,20 @@
 "use client";
 
 import useSWR from 'swr';
-//  will useEffect work here?
-
-
 
 async function getPostView(url: string) {
-  console.log('get', url);
   const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('Network response for getting post view was not ok');
   }
-  const views = await response.json();
-  return views;
+  const view = await response.json();
+  return view;
 }
 
-async function updatePostView() {
-  const response = await fetch(process.env.BASE_URL + '/api/posts', {
+async function updatePostView(slug:string) {
+  console.log("upaate post view")
+  const response = await fetch(process.env.BASE_URL + '/api/posts' + `/${slug}`, {
     method: 'POST',
   });
 
@@ -30,20 +27,28 @@ async function updatePostView() {
 }
 
 export default function usePostView(slug: string) {
-  const URL = process.env.BASE_URL + '/api/posts';
-  console.log('url:', URL + `/${slug}`);
-  console.log('url2:', process.env.BASE_URL);
   const { data, isLoading, error, mutate } = useSWR(
     process.env.BASE_URL + '/api/posts' + `/${slug}`,
-    (url) => getPostView(url)
+    (url) => getPostView(url), {
+      revalidateOnMount: false,
+      dedupingInterval: 2000,
+      refreshInterval: 1000,
+    }
   );
-  // "http://localhost:3000/api/posts"
-  console.log('data from usePostView', data);
-  // console.log("data from usePostView", data)
-  // return {
-  //     data
-  // }
+
+  const updateView = async () => {
+    let data;
+    try {
+      data = await updatePostView(slug)
+    } catch (_) {
+      data = {view: 0}
+    }
+    mutate({...data, view: data.view});
+  }
+
   return {
-    data: 0,
+    data,
+    error: isLoading || error || !data,
+    updateView
   };
 }

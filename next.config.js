@@ -11,6 +11,7 @@ const nextConfig = {
   env: {
     BASE_URL: process.env.BASE_URL,
   },
+  // reactStrictMode: false,
 };
 
 module.exports = withContentlayer(nextConfig);

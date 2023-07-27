@@ -25,7 +25,6 @@ export async function updateView(id: string) {
 }
 
 export async function getPostView(id: string) {
-  console.log(id, process.env.TABLENAME);
   try {
     const response = await client.send(
       new GetItemCommand({
