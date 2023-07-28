@@ -1,0 +1,88 @@
+---
+title: The Advent of Rust - AOC 2020 day 7
+slug: 'AOC-2020-day7'
+description: 'Solving the advent of code 2020 day 7 in Rust'
+publishedAt: '2023-07-28'
+status: 'solved'
+tags: 'dfs,recursion,hashmap'
+postTitle: 'Day 7: Universal Orbit Map'
+---
+
+Another AOC problem! In this post, I will be diving into my solution to AOC 2020 day7 in Rust. The challage can be found in here.
+
+If we look at the rules, we can see that the bags are in a tree-like structure. We can use a hashmap to store the rules and then use a recursive function to traverse the tree and find the number of bags that can contain a `shiny gold bag`.
+
+### Problem Description
+<Collapse>
+In Part1, we are given a list of rules that describe the bags and their contents for the luggage processing system. We are asked to count the number of bag colors that can eventually contain at least one shiny gold bag. If we have 3 bags where `red bag` contains `blug bag` and `blug bag` contains `shiny gold bag`, then `red bag` can contain `shiny gold bag` and `blug bag` can contain `shiny gold bag`. So the answer is 2.
+
+In Part2, we are asked to find the number of individual bags that are required inside our single `shiny gold bag`. Let's say we have 3 bags where `shiny gold bag` contains `2 red bag` and `red bag` contains `2 blue bag`. Then, inside our `shiny gold bag`, we have `2 red bag` and `4 blue bag` (each red bag contains 2 blug bags). So the answer is 6.
+
+</Collapse>
+
+### Input
+<Collapse>
+- Sample part1 input
+```text
+light red bags contain 1 bright white bag, 2 muted yellow bags.
+dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+bright white bags contain 1 shiny gold bag.
+muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+faded blue bags contain no other bags.
+dotted black bags contain no other bags.
+```
+
+- Sample part2 input
+```text
+shiny gold bags contain 2 dark red bags.
+dark red bags contain 2 dark orange bags.
+dark orange bags contain 2 dark yellow bags.
+dark yellow bags contain 2 dark green bags.
+dark green bags contain 2 dark blue bags.
+dark blue bags contain 2 dark violet bags.
+dark violet bags contain no other bags.
+```
+</Collapse>
+
+### Solution
+
+#### part1
+If we look at our rules (input), we can see that the bags are in a tree-like structure. So the first thing we are going to do is to parse out our input, and store them in a a `HashMap`.
+
+```rust
+struct Regulations {
+    rules: HashMap<String, Vec<(String, usize)>>,
+    bag_list: Vec<String>
+}
+
+impl Regulations {
+    fn new() -> Self {
+        let content = get_file("src/input/q8.txt").unwrap();
+        let mut rules = HashMap::new();
+        let mut bag_list = Vec::new();
+        content.lines().for_each(|line| {
+            let (bag, inside_bags) = line.split_once(" contain ").unwrap();
+            let bags;
+            if inside_bags.contains("no other bags") {
+                bags = vec![];
+            } else {
+                bags = inside_bags.split(", ").map(|bag_info|{
+                    let (num_of_bags, current_bag) = bag_info.split_once(" ").unwrap();
+                    (current_bag.trim_end_matches(|c| c== 's'|| c=='.').to_string(), num_of_bags.parse::<usize>().unwrap())
+                }).collect();
+
+            }
+            rules.insert(bag.trim_end_matches('s').to_string(), bags);
+            bag_list.push(bag.trim_end_matches('s').to_string());
+        });
+        Self { rules, bag_list }
+    }
+}
+```
+I created a struct called `Regulation` that stores a bag and its inner bags in a `HashMap` called `rules`. `bag_list` simply contains the name of all the bags.  
+#### Part2
+
+### Lesson Learned
