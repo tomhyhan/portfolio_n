@@ -13,7 +13,6 @@ async function getPostView(url: string) {
 }
 
 async function updatePostView(slug:string) {
-  console.log("upaate post view")
   const response = await fetch(process.env.BASE_URL + '/api/posts' + `/${slug}`, {
     method: 'POST',
   });

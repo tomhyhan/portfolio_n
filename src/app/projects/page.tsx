@@ -1,10 +1,13 @@
-import Image from 'next/image'
 import ProjectTabs from './../../components/project_tabs';
+
+const metadata = {
+  title: "project page"
+}
 
 export default function Home() {
   return (
-    <div className="h-full min-h-screen">
+    <main className="h-full min-h-screen">
       <ProjectTabs />
-    </div>
+    </main>
   )
 }

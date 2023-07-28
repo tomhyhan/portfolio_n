@@ -8,7 +8,8 @@ export default function Project({project, disappear}: {
     project: ProjectType
     disappear: boolean
 }) {
-//   "animate-[appear_1s_ease-in-out]"
+
+
   return (
     <Link className={clsx("m-6 w-60 h-40 relative ", 
         disappear ? "animate-[disappear_0.3s_ease-in-out]" : 

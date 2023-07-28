@@ -6,15 +6,7 @@ import Footer from '@/components/footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
-  title: "Tom's Portfolio/blog",
-  description: 'everything about me :)',
-  openGraph: {
-    title: 'Tom',
-    description: 'everything about me :)',
-    url: "someurl"
-  },
-}
+
 
 export default function RootLayout({
   children,
