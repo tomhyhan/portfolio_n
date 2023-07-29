@@ -8,21 +8,20 @@ tags: 'dfs,recursion,hashmap'
 postTitle: 'Day 7: Universal Orbit Map'
 ---
 
-Another AOC problem! In this post, I will be diving into my solution to AOC 2020 day7 in Rust. The challage can be found in here.
+Another AOC problem! In this post, I will be diving into my solution to AOC 2020 day7 in Rust. The challage can be found in [here](https://adventofcode.com/2020/day/7).
 
-If we look at the rules, we can see that the bags are in a tree-like structure. We can use a hashmap to store the rules and then use a recursive function to traverse the tree and find the number of bags that can contain a `shiny gold bag`.
-
-### Problem Description
+# Problem Description
 <Collapse>
 In Part1, we are given a list of rules that describe the bags and their contents for the luggage processing system. We are asked to count the number of bag colors that can eventually contain at least one shiny gold bag. If we have 3 bags where `red bag` contains `blug bag` and `blug bag` contains `shiny gold bag`, then `red bag` can contain `shiny gold bag` and `blug bag` can contain `shiny gold bag`. So the answer is 2.
 
 In Part2, we are asked to find the number of individual bags that are required inside our single `shiny gold bag`. Let's say we have 3 bags where `shiny gold bag` contains `2 red bag` and `red bag` contains `2 blue bag`. Then, inside our `shiny gold bag`, we have `2 red bag` and `4 blue bag` (each red bag contains 2 blug bags). So the answer is 6.
-
 </Collapse>
 
-### Input
+
+# Input
 <Collapse>
-- Sample part1 input
+#### > Sample Part1 Input
+
 ```text
 light red bags contain 1 bright white bag, 2 muted yellow bags.
 dark orange bags contain 3 bright white bags, 4 muted yellow bags.
@@ -35,7 +34,7 @@ faded blue bags contain no other bags.
 dotted black bags contain no other bags.
 ```
 
-- Sample part2 input
+#### > Sample Part2 Input
 ```text
 shiny gold bags contain 2 dark red bags.
 dark red bags contain 2 dark orange bags.
@@ -47,10 +46,10 @@ dark violet bags contain no other bags.
 ```
 </Collapse>
 
-### Solution
+# Solution
 
-#### part1
-If we look at our rules (input), we can see that the bags are in a tree-like structure. So the first thing we are going to do is to parse out our input, and store them in a a `HashMap`.
+## Part1
+If we look at our rules (input), we can see that the bags are in a tree-like structure. So the first thing I am going to do is to parse out our input, and store them in a a `HashMap`.
 
 ```rust
 struct Regulations {
@@ -82,7 +81,82 @@ impl Regulations {
     }
 }
 ```
-I created a struct called `Regulation` that stores a bag and its inner bags in a `HashMap` called `rules`. `bag_list` simply contains the name of all the bags.  
-#### Part2
+<Information>
+    We could also use `Regex` to simplfy our parsing process
+</Information>
 
-### Lesson Learned
+I created a struct called `Regulations` to store our rules and the list of bags. The `rules` is a `HashMap` where the key is the bag name and the value is a vector of tuples where the first element is the bag name and the second element is the number of bags. The `bag_list` is a vector of bag names.
+
+Next, I am going to iterate through the `bag_list` and recursively find the number of bags that can contain `shiny gold bag`.
+
+```rust
+fn find_how_many_bags_contains(&self, target_bag: String) -> usize{
+    self.bag_list.iter().filter(|bag| self.contains(bag, &target_bag)).count()
+}
+
+fn contains(&self, bag: &String, target_bag: &String)-> bool {
+    let mut is_contain = false;
+    for inner_bag_info in self.rules.get(bag).unwrap() {
+        let inner_bag = &inner_bag_info.0;
+        if inner_bag == target_bag {
+            return true
+        };
+        if self.contains(inner_bag, target_bag) {
+            is_contain = true
+        }
+    }
+    is_contain
+}
+```
+The `contains` function will recursively check if the current bag contains the `shiny gold bag` or any bag that contains the `shiny gold bag`.
+
+When I ran the code, I got the correct answer for part1. Now, let's move on to part2.
+
+```text
+found - 177
+part1 ran in : 75.0312ms
+```
+
+## Part2
+
+Part2 could be a bit confusing since each bag contains inner other bags, and each of those inner bags could contain other inner bags. So we need to account for all the outter bags and inner bags like in my description for part2 above.
+
+I felt that this problem is a perfect candidate for recursion. So I will use the recursion function again to find our how many bags are inside our `shiny gold bag`.
+
+```rust
+fn cnt_how_many_bags_contains(&self, bag: &String) -> usize{
+    let mut cnt = 0;
+    for (inner_bag, bag_cnt) in self.rules.get(bag).unwrap() {
+        cnt += bag_cnt + bag_cnt * self.cnt_how_many_bags_contains(inner_bag);
+    }
+    cnt  
+}
+```
+The base case is when the bag contains no inner bags, so it will return 0. Otherwise, the function will go all the way down and return the number of inner bags. Then it will go up one level and multiply the number of bags in that level plus current number of bags. It will keep doing this until it reaches the top level. 
+
+From our Sample description for part 2, the function will show the following result:
+
+```text
+dark violet bags will return 0
+dark blue bags will return 2 (2 + 2 * 0)
+the dark green bags will return 6 (2 + 2 * 2)
+dark yellow bags will return 14 (2 + 2 * 6)  
+dark orange bags will return 30 (2 + 2 * 14)
+dark red bags 62 (2 + 2 * 30)
+Finally, shiny gold bags 126 (2 + 2 * 62)
+```
+
+I ran the program and got the correct answer for part2.
+
+```text
+total - 34988
+part2 ran in : 3.3939ms
+```
+
+# Summary
+
+Today, AOC problem showed a clean example of using recursion to solve a problem. The code is short, clean and easy to understand. I personally find recursion quiet difficult to understand and use, but this problem was enjoyable to solve. 
+
+I hope you enjoyed it as well. If you are interested, you might also have some fun with [AOC 2020 day 7](https://adventofcode.com/2020/day/7)
+
+The full code can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2020/src/q7.rs)

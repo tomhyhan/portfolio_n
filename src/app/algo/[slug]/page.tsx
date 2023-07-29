@@ -1,8 +1,8 @@
 import { allPosts, Post } from 'contentlayer/generated'
-import MdxComponentWraper from '@/components/mdxComponentWraper'
 import { notFound } from 'next/navigation'
-import usePostView from '@/lib/usePostView'
 import PostPage from '@/components/postPage'
+import { Metadata } from 'next'
+import { openGraphBasic } from '@/lib/shared-metadata'
 
 export async function generateStaticParams() {
     return allPosts.map((post) => ({
@@ -10,6 +10,31 @@ export async function generateStaticParams() {
     }))
 }
 
+export async function generateMetadata({params: {slug}}: {params: {slug: string}}): Promise<Metadata> {
+    // read route params
+    const post = allPosts.find((post) => post.slug === slug)
+   
+    if (!post) {
+        return {}
+    }
+    return {
+        title: post.postTitle,
+        description: post.description,
+        openGraph: {
+            ...openGraphBasic,
+            title: post.postTitle,
+            description: post.description,
+            images: [{
+                url:`/algo/${post.slug}.png`,
+                width:1200,
+                height:600,
+                alt:`Og ${post.slug} Image Alt`,
+              }],
+            url: `/algo/${post.slug}`,
+        },
+    }
+  }
+  
 export default async function Page({params: {slug}}: {params: {slug: string}}) {
     const post = allPosts.find((post) => post.slug === slug)
     if (!post) {
