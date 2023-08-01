@@ -32,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-        <body className={clsx(inter.className, "bg-gradient-to-b from-slate-700 h-fit")}>
+        <body className={clsx(inter.className, "bg-slate-900 h-fit")}>
           <Header />
           {children}
           <Footer />
