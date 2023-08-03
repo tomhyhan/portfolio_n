@@ -25,8 +25,8 @@ export default function Home() {
   const posts = allPosts.sort((a, b) => compareDesc(new Date(a.publishedAt), new Date(b.publishedAt)))
 
   return (
-    <main className="flex min-h-screen items-start 
-                justify-center py-12 px-3 w-full flex-wrap bg-slate-100">
+    <main className="min-h-screen grid sm:grid-cols-2 md:grid-cols-3 gap-10
+     py-12 px-3 w-full  bg-slate-100">
       {posts.map((post: Post,) => (
         <PostCard key={uuidv4()} post={post} />
       ))}

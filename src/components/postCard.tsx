@@ -4,14 +4,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
+// todo: tags being cut off
 export default function PostCard({post}: {
   post: Post
 }) {
   return (
     <Link href={`/algo/${post.slug}`} className="max-w-sm rounded-lg 
         overflow-hidden shadow-lg mb-9 
-        sm:w-[45%] mx-auto 
-        lg:w-[28%]  
+        h-[17rem] mx-auto
         hover:-translate-y-2
         bg-gray-200">
         <Image width={300} height={300} className="w-full h-32" src={`/algo/${post.slug}.png`} alt="Sunset in the mountains" />
