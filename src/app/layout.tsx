@@ -17,7 +17,7 @@ export const metadata = {
       title: "Tom's Portfolio/blog",
       description: 'My journey to become a full stack developer',
       images: [{
-        url:'/skills/next.png',
+        url:'/ogimage/main.png',
         width:1200,
         height:600,
         alt:'Og Image Alt',

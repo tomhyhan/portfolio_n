@@ -26,7 +26,7 @@ export const projects = [
     createdWith: ['Next 13, MDX, tailwindCSS, dynamodb, Vercel'],
     category: 'Fullstack',
     image: 'myblog.png',
-    src: 'https://furnacepartsdiy.com/',
+    src: 'https://github.com/tomhyhan/portfolio_n',
   },
   {
     name: 'Inventory Management System',
