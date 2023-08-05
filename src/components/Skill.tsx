@@ -1,4 +1,3 @@
-import React from 'react'
 import SkillList from './skillList';
 
 export default function Skill({title, skillList}: {
