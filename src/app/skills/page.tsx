@@ -1,4 +1,4 @@
-import Skill from '@/components/skill'
+import Skill from '../../components/skill'
 import { openGraphBasic } from '@/lib/shared-metadata'
 import { skillTypes } from '@/lib/skillsType'
 
