@@ -14,7 +14,7 @@ export default function PostCard({post}: {
         h-[17rem] mx-auto
         hover:-translate-y-2
         bg-gray-200">
-        <Image width={300} height={300} className="w-full h-32" src={`/algo/${post.slug}.png`} alt="Sunset in the mountains" />
+        <Image width={300} height={300} className="w-full h-32" src={`/algo/${post.slug}.png`} alt={post.slug} />
         <div className="px-6 py-4 ">
             <div className="font-bold text-base mb-2">{post.title}</div>
             <time className="text-gray-700 text-base">
