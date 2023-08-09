@@ -21,7 +21,7 @@ export default function Home({}) {
         <div className="w-11/12 sm:w-1/2 h-full min-h-[30rem] space-y-4 flex flex-col justify-evenly mx-auto py-10 text-slate-900">
           <p>
             Welcome to my Blog! This space is all about sharing 
-            my lifelong journal of programming and more.
+            my lifelong journey of programming and more.
           </p>
           <p>
               In this blog, I will share my programming adventures,
