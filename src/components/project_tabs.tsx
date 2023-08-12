@@ -20,7 +20,7 @@ export default function ProjectTabs() {
 
     return (
       <main className="h-full w-full">
-         <div className="flex  justify-center items-center m-0 p-0 ">
+         <div className="flex flex-wrap justify-center items-center m-0 p-0 ">
           {projectCategories.map((category, idx) => 
             <CategoryBtn 
             key={idx} 

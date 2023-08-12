@@ -8,7 +8,7 @@ export default function Navigation({navLinks} : {navLinks: { name: string, href:
     const pathname = usePathname()
     return (
         <>
-            <div className="flex flex-shrink-0 items-center fixed sm:static">
+            <div className="flex flex-shrink-0 items-center  absolute sm:static">
                   <Link href={"/"} className="text-white text-2xl">Tom</Link>
             </div>
             <div className="hidden sm:ml-6 sm:block">

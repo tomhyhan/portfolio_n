@@ -12,5 +12,6 @@ export default function Skill({title, skillList}: {
               <SkillList key={idx} skill={skill} />
             ))}
           </ol>
-        </div>  )
+        </div>  
+    )
 }
