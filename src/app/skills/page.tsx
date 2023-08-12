@@ -21,7 +21,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className="h-100">
+    <main className="min-h-screen">
       {Object.entries(skillTypes).map(([title, skillList], idx) => (
         <Skill key={idx} title={title} skillList={skillList} />
       ))}
