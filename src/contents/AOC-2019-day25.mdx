@@ -1,0 +1,132 @@
+---
+title: The Advent of Rust - AOC 2019 day 25
+slug: 'AOC-2019-day25'
+description: 'Solving the advent of code 2019 day 25 in Rust'
+publishedAt: '2023-08-12'
+status: 'solved'
+tags: 'game, deque'
+postTitle: 'Day 25: Cryostasis'
+---
+
+In this post, I will be solving the AOC 2019 day 19 in Rust. I have created a mini-adventure game to solve the problem. The game is created using Rust lambda function for you to play. The challenge can be found in [here](https://adventofcode.com/2019/day/25).
+
+# Text-adventure Game
+
+{/* <Adventure></Adventure> */}
+
+<Information>
+Instructions:
+
+north : Go up\
+south : Go down\
+east  : Go right\
+west  : Go left\
+take \<ITEM\> : Take the item\
+drop \<ITEM\> : Drop the item\
+inv : Check the inventory
+
+**The limit is 3000 requests per day
+</Information>
+
+# Problem Description
+<Collapse>
+For this problem, we only have part 1 since it is the last question of the year 2019. Also, it requires a prerequisite of int-code machine that I created from previous challages, since we need to use the int-code machine to explore the maze.
+
+The problem is a text adventure game where we need to collect all the items in the game and drop them in the `pressure-sensitive` floor to escape. The items are scattered around the rooms so we need to input the commands to explore the maze. All the commands are listed with the above mini-adventure game. 
+</Collapse>
+
+# Input
+<Collapse>
+`Input` can be found in [here](https://adventofcode.com/2019/day/25/input).
+</Collapse>
+
+# Solution
+
+## Part1
+The first thing I did is to create a `game` just like our mini-adventure game to accept the input and output the result. I manually input the commands to explore the maze and collect all the items. 
+
+Then, I created function that take items and produce every combination of the items.
+
+```rust
+fn generate_powerset(items: Vec<&str>) -> Vec<Vec<String>> {
+    let mut sets = vec![vec![]];
+    for item in items.iter() {
+        let len = sets.len();
+        for i in 0..len {
+            let mut new_set = sets[i].clone();
+            new_set.push(item.to_string());
+            sets.push(new_set);
+        }
+    }
+    sets
+}
+```
+
+After that, I tried every combination of the items to enter the `pressure-sensitive` floor. 
+
+```rust
+fn add_command_to_program(program: &mut ProgramASCII, command:&str, item: &str) {
+    let s  = format!("{}{}",command, item);
+    let mut str_chars:VecDeque<char> = s.trim_end().chars().collect();
+    str_chars.push_back('\n');
+    program.str_chars.extend(str_chars);
+}
+
+fn part1(&mut self) {
+    let mut program_acsii = ProgramASCII::new("north\ntake sand\nnorth\nnorth\ntake astrolabe\nsouth\nsouth\nwest\nwest\ntake mutex\neast\neast\nsouth\neast\ntake klein bottle\neast\ntake semiconductor\nwest\nnorth\nnorth\nnorth\ntake dehydrated water\nsouth\nsouth\nsouth\nwest\nwest\nnorth\ntake shell\nsouth\nsouth\nwest\ntake ornament\nwest\nsouth\n".to_string());
+    
+    // manually found items in the game
+    let items = vec!["mutex", "ornament", "sand", "astrolabe", "klein bottle", "semiconductor", "dehydrated water", "shell"];
+
+    for item in items.iter() {
+        add_command_to_program(&mut program_acsii, "drop ", item)
+    }
+    
+    let command_sets = generate_powerset(items);
+    for commands in command_sets.iter() {
+        for command in commands.iter() {
+            add_command_to_program(&mut program_acsii, "take ", command)
+        }    
+        add_command_to_program(&mut program_acsii, "", "south");
+        for command in commands.iter() {
+            add_command_to_program(&mut program_acsii, "drop ", command)
+        }  
+    }
+
+    let mut msg = "".to_string();
+    while let Some(output) = program_acsii.run_program(0) {
+        let c = output as u8 as char;
+        if c == '\n' {
+            if !msg.is_empty() {
+                println!("{:?}", msg);
+            } 
+            msg.clear()
+        } else {
+            msg.push(c);
+        }
+    }
+}
+```
+I used `add_command_to_program` function to add commands to the program. I applied deque to store the commands so that the int-code machine can read the commands LILO (Last In Last Out) order.
+
+Then, I input commands for droping all the items and trying different combinations of the items.
+
+When I ran the program, I got the following output. 
+
+```text
+"== Pressure-Sensitive Floor =="
+"Analyzing..."
+"Doors here lead:"
+"- north"
+"A loud, robotic voice says \"Analysis complete! You may proceed.\" and you enter the cockpit."
+"Santa notices your small droid, looks puzzled for a moment, realizes what has happened, and radios your ship directly."
+"\"Oh, hello! You should be able to get in by typing 134807554 on the keypad at the main airlock.\""
+```
+
+# Summary
+
+In today's challage, I was able to build a mini-adventure game using Rust backend. It was my first time trying out Rust lambda function, and it was fun to play with it. However, I felt like it was not the best way to create a lambda function, since it took long time to compile and caused some errors when I tried to change, save and run the function again. I think it is better to create a lambda function using Node.js or Python rather than custom script.
+
+In any case, the problem itself was very creative and fun to solve. I enjoyed playing the game and solving the problem. If you are interested, you might also have some fun with [AOC 2019 day 25](https://adventofcode.com/2019/day/25).
+
+The full code can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2019/src/q25.rs).
