@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.370.0",
+    "@aws-sdk/client-lambda": "^3.388.0",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@types/node": "20.3.2",

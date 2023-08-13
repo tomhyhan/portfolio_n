@@ -5,6 +5,7 @@ import Information from './mdxhelper/information'
 import Warning from './mdxhelper/warning'
 import Note from './mdxhelper/note'
 import Collapse from './mdxhelper/collapse';
+import Adventure from './mdxhelper/adventure';
 export default function MdxComponentWraper({code}: {
     code: string
 } ) {
@@ -14,6 +15,7 @@ export default function MdxComponentWraper({code}: {
     Information,
     Warning,
     Note,
-    Collapse
+    Collapse,
+    Adventure
     }}/>
 }
