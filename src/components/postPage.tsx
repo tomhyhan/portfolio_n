@@ -9,11 +9,11 @@ import { format, parseISO } from 'date-fns'
 export default function PostPage({post}: {
     post: Post
 }) {
-    // const {data, error, updateView} = usePostView(post.slug)
+    const {data, error, updateView} = usePostView(post.slug)
 
-    // useEffect(() => {
-    //   updateView()
-    // }, [])
+    useEffect(() => {
+      updateView()
+    }, [])
 
   return (
     <>
@@ -21,7 +21,7 @@ export default function PostPage({post}: {
         <div className="text-gray-700 mt-5 my-16">
             <p className="text-end">{format(parseISO(post.publishedAt), 'LLLL d, yyyy')}</p>
             <p className="text-end">Status: {post?.status.toUpperCase()}</p>
-            {/* <p className="text-end">Views: {error ? <span>loading...</span> : <>{data.view}</>}</p> */}
+            <p className="text-end">Views: {error ? <span>loading...</span> : <>{data.view}</>}</p>
             <hr className="h-px bg-gray-200 border-0 dark:bg-gray-700"/>
         </div>
         <MdxComponentWraper code={post.body.code} />
