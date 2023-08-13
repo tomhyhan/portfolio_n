@@ -14,7 +14,7 @@ export default function PostPage({post}: {
     useEffect(() => {
       updateView()
     }, [])
-
+ 
   return (
     <>
         <h1 className="text-3xl text-center">{post?.postTitle}</h1>
