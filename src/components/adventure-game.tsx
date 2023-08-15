@@ -12,7 +12,6 @@ export default function AdventureGame() {
     },[inputRef, commands, data])
 
     if (error) {
-        console.log(error)
         return <div>failed to load</div>
     }
 
