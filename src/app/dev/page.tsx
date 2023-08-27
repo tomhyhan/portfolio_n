@@ -12,7 +12,7 @@ export const metadata = {
         title: "Development",
         description: "My Development Blog",
         images: [{
-            url:'/ogimage/algos.png',
+            url:'/ogimage/dev.png',
             width:1200,
             height:600,
             alt:'Og Development Image Alt',
@@ -28,7 +28,7 @@ export default function Home() {
     <main className="min-h-screen grid sm:grid-cols-2 md:grid-cols-3 gap-10
      py-12 px-3 w-full  bg-slate-100">
       {posts.map((post: Post,) => (
-        <PostCard key={uuidv4()} post={post} />
+        <PostCard key={uuidv4()} post={post} category="dev" />
       ))}
     </main>
   )

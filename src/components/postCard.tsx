@@ -5,16 +5,17 @@ import Link from 'next/link'
 import React from 'react'
 
 // todo: tags being cut off
-export default function PostCard({post}: {
-  post: Post
+export default function PostCard({post, category}: {
+  post: Post,
+  category: string
 }) {
   return (
-    <Link href={`/dev/${post.slug}`} className="max-w-sm rounded-lg 
+    <Link href={`/${category}/${post.slug}`} className="max-w-sm w-full rounded-lg 
         overflow-hidden shadow-lg mb-9 
         h-[17rem] mx-auto
         hover:-translate-y-2
         bg-gray-200">
-        <Image width={300} height={300} className="w-full h-32" src={`/dev/${post.slug}.png`} alt={post.slug} />
+        <Image width={300} height={300} className="w-full h-32" src={`/${category}/${post.slug}.png`} alt={post.slug} />
         <div className="px-6 py-4 ">
             <div className="font-bold text-base mb-2">{post.title}</div>
             <time className="text-gray-700 text-base">
