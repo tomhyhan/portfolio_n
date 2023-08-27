@@ -5,24 +5,24 @@ import { compareDesc } from 'date-fns';
 import { openGraphBasic } from '@/lib/shared-metadata';
 
 export const metadata = {
-    title: "Algorithm",
-    description: "Showing My Algorithm",
+    title: "Development",
+    description: "My Development Blog",
     openGraph: {
         ...openGraphBasic,
-        title: "Algorithm",
-        description: "Showing My Algorithm",
+        title: "Development",
+        description: "My Development Blog",
         images: [{
             url:'/ogimage/algos.png',
             width:1200,
             height:600,
-            alt:'Og Algorithm Image Alt',
+            alt:'Og Development Image Alt',
           }],
-        url: "/algo",
+        url: "/dev",
       },
 }
 
 export default function Home() {
-  const posts = allPosts.filter(post => post.category == "algo").sort((a, b) => compareDesc(new Date(a.publishedAt), new Date(b.publishedAt)))
+  const posts = allPosts.filter(post => post.category == "dev").sort((a, b) => compareDesc(new Date(a.publishedAt), new Date(b.publishedAt)))
 
   return (
     <main className="min-h-screen grid sm:grid-cols-2 md:grid-cols-3 gap-10

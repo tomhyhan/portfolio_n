@@ -5,7 +5,7 @@ import { Metadata } from 'next'
 import { openGraphBasic } from '@/lib/shared-metadata'
 
 export async function generateStaticParams() {
-    return allPosts.filter(post => post.category == "algo").map((post) => ({
+    return allPosts.filter(post => post.category == "dev").map((post) => ({
       slug: post.slug,
     }))
 }
@@ -30,7 +30,7 @@ export async function generateMetadata({params: {slug}}: {params: {slug: string}
                 height:600,
                 alt:`Og ${post.slug} Image Alt`,
               }],
-            url: `/algo/${post.slug}`,
+            url: `/dev/${post.slug}`,
         },
     }
   }

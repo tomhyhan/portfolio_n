@@ -9,9 +9,10 @@ import NavigationMobile from './navigation_mobile'
 import MobileNavBtn from './mobile_nav_btn'
 
 const navLinks = [
-  { name: 'Algos', href: '/algo' },
-  { name: 'Skills', href: '/skills' },
-  { name: 'Projects', href: '/projects' },
+    { name: 'Dev', href: '/dev' },
+    { name: 'Algos', href: '/algo' },
+    { name: 'Skills', href: '/skills' },
+    { name: 'Projects', href: '/projects' },
 ]
 export default function Header() {
   const pathname = usePathname()  
