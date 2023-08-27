@@ -29,6 +29,9 @@ export function rehypeCode() {
           node.properties.style +
           ';overflow:auto;padding:1rem;border-radius: 10px;';
       }
+      if (node.tagName === 'ol') {
+        node.properties.style = 'list-style:auto;    margin-left:2rem;';
+      }
     });
   };
 }

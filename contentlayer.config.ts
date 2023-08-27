@@ -43,6 +43,11 @@ const Post = defineDocumentType(() => ({
       description: 'title of the page',
       required: true,
     },
+    category: {
+      type: 'string',
+      description: 'category',
+      required: true,
+    },
   },
   computedFields: {
     url: {

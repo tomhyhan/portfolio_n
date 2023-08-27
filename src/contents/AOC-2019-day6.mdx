@@ -6,11 +6,12 @@ publishedAt: '2023-07-05'
 status: 'solved'
 tags: 'dfs,graph'
 postTitle: 'Day 6: Universal Orbit Map'
+category: 'algo'
 ---
 
 In this solution, I will be going through my solution to the Advent of Code 2019 day 6 challenge in Rust. The challenge can be found [here](https://adventofcode.com/2019/day/6).
 
-### Part 1
+# Part 1
 
 We are given an input that looks like this:
 
@@ -92,7 +93,7 @@ Now, we can use a `depth first search` to count the number of direct and indirec
   Otherwise, rust's borrow checker will complain about multiple mutable borrows.
 </Note>
 
-### Part 2
+# Part 2
 
 In part 2, we are asked to find the minimum number of orbital transfers required to move from the object YOU are orbiting to the object SAN is orbiting.
 
