@@ -9,7 +9,7 @@ postTitle: 'Day 14: Docking Data'
 category: 'algo'
 ---
 
-In today's AOC challenge, I will be walking through my solution to AOC 2020 day 13 in Rust. The problem can be found in [here](https://adventofcode.com/2020/day/14).
+In today's AOC challenge, I will be walking through my solution to AOC 2020 day 14 in Rust. The problem can be found in [here](https://adventofcode.com/2020/day/14).
 
 # Problem Description
 <Collapse>
@@ -161,7 +161,7 @@ fn decode_address(&mut self) {
 }
 ```
 
-The decode_address function is similar to the sum_masked_values function. The only difference is that we are now applying the mask to the memory address instead of the memory value. Because the address can be diverged into multiple addresses, I created a new vector to hold all the addresses and insert the value into each address. 
+The `decode_address` function is similar to the `sum_masked_values` function. The only difference is that we are now applying the mask to the memory address instead of the memory value. Because the address can be diverged into multiple addresses, I created a new vector to hold all the addresses and insert the value into each address. 
 
 Next, I created a new function called `change_address` to generate multiple addresses.
 
