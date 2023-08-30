@@ -12,7 +12,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({params: {slug}}: {params: {slug: string}}): Promise<Metadata> {
     // read route params
-    const post = allPosts.find((post) => post.slug === slug)
+    const post = allPosts.filter(post => post.category == "algo").find((post) => post.slug === slug)
    
     if (!post) {
         return {}
