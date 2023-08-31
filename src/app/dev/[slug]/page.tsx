@@ -12,7 +12,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({params: {slug}}: {params: {slug: string}}): Promise<Metadata> {
     // read route params
-    const post = allPosts.find((post) => post.slug === slug)
+    const post = allPosts.filter(post => post.category == "dev").find((post) => post.slug === slug)
    
     if (!post) {
         return {}
@@ -25,7 +25,7 @@ export async function generateMetadata({params: {slug}}: {params: {slug: string}
             title: post.postTitle,
             description: post.description,
             images: [{
-                url:`/algo/${post.slug}.png`,
+                url:`/dev/${post.slug}.png`,
                 width:1200,
                 height:600,
                 alt:`Og ${post.slug} Image Alt`,

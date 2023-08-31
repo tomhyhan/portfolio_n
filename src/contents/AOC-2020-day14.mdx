@@ -1,0 +1,217 @@
+---
+title: The Advent of Rust - AOC 2020 day 14
+slug: 'AOC-2020-day14'
+description: 'Solving the advent of code 2020 day 14 in Rust'
+publishedAt: '2023-08-29'
+status: 'solved'
+tags: 'recursion,bitmask'
+postTitle: 'Day 14: Docking Data'
+category: 'algo'
+---
+
+In today's AOC challenge, I will be walking through my solution to AOC 2020 day 14 in Rust. The problem can be found in [here](https://adventofcode.com/2020/day/14).
+
+# Problem Description
+
+<Collapse>
+In part 1, we are given a list of instructions to run the program on the ferry. The instructions are either a `memory address and value` or a `mask`. The mask is a string of 36 bits, where each bit is either 0, 1, or X. We are asked to apply the `mask` to the `memory value` before it is written to the `memory address`. To apply the mask, 0 and 1 overwrite the corresponding bit in the value, while X leaves the bit in the value unchanged. To get an asnwer, we need to sum all the values in the memory.
+
+In part 2, we are asked to apply the `mask` to the `memory address` instead of the `memory value`. Now, `mask` bit 0 means the corresponding bit is unchanged, 1 means the corresponding bit is overwritten with 1, and X means the corresponding memory bit can either be 0 and 1. Like wise, we need to sum all the values in the memory.
+
+</Collapse>
+
+# Input
+
+<Collapse>
+#### Sample Part 1 input:
+```text
+mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X
+mem[8] = 11
+mem[7] = 101
+mem[8] = 0
+```
+
+#### Sample Part 2 input:
+
+```text
+mask = 000000000000000000000000000000X1001X
+mem[42] = 100
+mask = 00000000000000000000000000000000X0XX
+mem[26] = 1
+```
+
+Full `Input` can be found in [here](https://adventofcode.com/2020/day/14/input). You need to log in to get your input.
+
+</Collapse>
+
+# Solution
+
+## Part1
+
+Since we are dealing with binary numbers, I am going to use bitwise operators in Rust to solve this problem.
+
+First thing first, we need to parse our input.
+
+```rust
+struct PortSystem {
+    memory: HashMap<u64, u64>,
+    instructions: Vec<String>
+}
+
+impl PortSystem {
+    fn new() -> Self {
+        let content = get_file("src/input/q14.txt").unwrap();
+        let memory = HashMap::new();
+        let instructions = content.lines().map(String::from).collect();
+        Self {memory, instructions }
+    }
+}
+```
+
+I created a new PortSystem struct to hold the memory and instructions. I used a HashMap to store the memory address and key in the future. `isntructions` is a vector of string that holds the each line from our `input`.
+
+Then, I am going to create a function to iterate through the instructions and apply the mask to the memory value.
+
+```rust
+fn sum_masked_values(&mut self) {
+    let mut mask: Option<String> = None;
+    for ins in self.instructions.iter() {
+        let (key,value) = ins.split_once(" = ").unwrap();
+        match key {
+            "mask" => {
+                mask = Some(value.to_string())
+            }
+            _ => {
+                if let Some(cmask) = mask.clone() {
+                    lazy_static! {
+                        static ref RE: Regex = Regex::new(r"\d+").unwrap();
+                    }
+                    let location = RE.find(key).unwrap().as_str().parse::<u64>().unwrap();
+                    let mask_unchange = cmask.replace("X", "0");
+                    let binary = u64::from_str_radix(&mask_unchange, 2).unwrap();
+                    let val = value.parse::<u64>().unwrap();
+                    let m = binary | val;
+                    let mask_change = cmask.replace("X", "1");
+                    let binary = u64::from_str_radix(&mask_change, 2).unwrap();
+                    self.memory.insert(location, binary & m);
+                } else {
+                    panic!("mask does not exist")
+                }
+            }
+        }
+    }
+    println!("sum - {:?}", self.memory.values().sum::<u64>())
+}
+```
+
+Here is what's going with the code above:
+
+1. Inititalized the mask to None
+2. Iterate through the instructions
+3. If the current instruction is a `mask`, then set the mask to the current value
+4. If the current instruction is a `memory address and value`, then apply the `mask` to the value and insert it into the memory address
+
+To apply the `mask` to the `memory value`, I first replaced the `X` in the mask to `0`. Then, I converted the `mask` to binary using `u64::from_str_radix` method. The binary is now applied to the value using a `| (bitwise OR)` operator. This way, we can preserve all the `1`s in the value and mask. Next, following the same steps, I replaced the `X` in the mask to `1` and applied it to the previous computed value using a `& (bitwise AND)` operator. if the `mask` is `0`, we change the corresponding bit to `0`. Otherwise, we keep the bit unchanged.
+
+To give you an idea of how the mask is applied to the value, here is an example:
+
+```text
+address = 0
+value = 010
+mask = 10X
+
+OR = 010 | 100 = 110
+AND = 110(OR) & 101 = 100
+finally value, 100 is inserted into the memory address 0
+```
+
+I ran the program, and got the correct answer.
+
+```text
+sum - 11926135976176
+part1 ran in : 15.2821ms
+```
+
+## Part2
+
+In the 2, since the behavior of mask values changed, I am going to create a new function to handle the new mask behavior.
+
+```rust
+fn decode_address(&mut self) {
+    let mut mask: Option<String> = None;
+    for ins in self.instructions.iter() {
+        let (key,value) = ins.split_once(" = ").unwrap();
+        match key {
+            "mask" => {
+                mask = Some(value.to_string())
+            }
+            _ => {
+                if let Some(cmask) = mask.clone() {
+                    lazy_static! {
+                        static ref RE: Regex = Regex::new(r"\d+").unwrap();
+                    }
+                    let value = value.parse::<u64>().unwrap();
+                    let address = RE.find(key).unwrap().as_str().parse::<u64>().unwrap();
+                    let mut addresses = vec![];
+                    self.change_address(address,cmask.chars().collect(), &mut addresses, 0, 0 );
+                    for address in addresses.iter() {
+                        self.memory.insert(*address, value);
+                    }
+                } else {
+                    panic!("mask does not exist")
+                }
+            }
+        }
+    }
+    println!("sum - {:?}", self.memory.values().sum::<u64>())
+}
+```
+
+The `decode_address` function is similar to the `sum_masked_values` function. The only difference is that we are now applying the mask to the memory address instead of the memory value. Because the address can be diverged into multiple addresses, I created a new vector to hold all the addresses and insert the value into each address.
+
+Next, I created a new function called `change_address` to generate multiple addresses.
+
+```rust
+fn change_address(&self, address: u64, mask: Vec<char>, addresses: &mut Vec<u64>, idx: usize, addr_so_far: u64) {
+    if let Some(c_mask) = mask.last() {
+        match c_mask {
+            '0' => {
+                self.change_address(address, mask[..mask.len()-1].to_vec(), addresses, idx + 1, addr_so_far + (address & (1 << idx)))
+            }
+            '1' => {
+                self.change_address(address, mask[..mask.len()-1].to_vec(), addresses, idx + 1, addr_so_far + (1 << idx))
+            }
+            'X' => {
+                self.change_address(address, mask[..mask.len()-1].to_vec(), addresses, idx + 1, addr_so_far + (0 << idx));
+                self.change_address(address, mask[..mask.len()-1].to_vec(), addresses, idx + 1, addr_so_far + (1 << idx));
+            }
+            _ => unreachable!()
+        }
+    } else {
+        addresses.push(addr_so_far)
+    }
+}
+```
+
+The `change address` function does the followings:
+
+    1. Take the last character from the mask. If the mask is empty, then push the `addr_so_far` to the `addresses` vector and return nothing.
+    2. If the current mask bit (the last character) is 0, I applied the current mask bit to the address' corresponding bit using a `& (bitwise AND)` operator becuase we want to keep the bit unchanged.
+    3. If the current mask bit is 1, we don't worry about the corresponding address bit. So I set the corresponding address bit set to 1.
+    4. If the current mask bit is X, then we need to generate two addresses. One with the corresponding address bit set to 0 and the other with the corresponding address bit set to 1.
+    5. After step 2,3 and 4, I added the resulting value to the `addr_so_far` and recursively called the `change_address` function with the updated `addr_so_far`, the mask without the last character and index + 1.
+
+I tested the program and got the correct answer.
+
+```text
+sum - 4330547254348
+part2 ran in : 199.3585ms
+```
+
+# Summary
+
+In today's AOC challenge, we learned how to use bitwise operators in Rust to effectively solve the problem. We also used recursion in a nice and clean way to generate multiple addresses for part 2. Using recursion at right time can make your code more readable then using a loop.
+
+I hope you enjoyed this post. If you are interested, you might also have some fun with [AOC 2020 day 14](https://adventofcode.com/2020/day/14)
+
+The full code can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2020/src/q14.rs)
