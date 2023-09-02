@@ -12,13 +12,16 @@ category: 'algo'
 In today's AOC challenge, I will be walking through my solution to AOC 2020 day 14 in Rust. The problem can be found in [here](https://adventofcode.com/2020/day/14).
 
 # Problem Description
+
 <Collapse>
 In part 1, we are given a list of instructions to run the program on the ferry. The instructions are either a `memory address and value` or a `mask`. The mask is a string of 36 bits, where each bit is either 0, 1, or X. We are asked to apply the `mask` to the `memory value` before it is written to the `memory address`. To apply the mask, 0 and 1 overwrite the corresponding bit in the value, while X leaves the bit in the value unchanged. To get an asnwer, we need to sum all the values in the memory.
 
 In part 2, we are asked to apply the `mask` to the `memory address` instead of the `memory value`. Now, `mask` bit 0 means the corresponding bit is unchanged, 1 means the corresponding bit is overwritten with 1, and X means the corresponding memory bit can either be 0 and 1. Like wise, we need to sum all the values in the memory.
+
 </Collapse>
 
 # Input
+
 <Collapse>
 #### Sample Part 1 input:
 ```text
@@ -29,13 +32,16 @@ mem[8] = 0
 ```
 
 #### Sample Part 2 input:
+
 ```text
 mask = 000000000000000000000000000000X1001X
 mem[42] = 100
 mask = 00000000000000000000000000000000X0XX
 mem[26] = 1
 ```
+
 Full `Input` can be found in [here](https://adventofcode.com/2020/day/14/input). You need to log in to get your input.
+
 </Collapse>
 
 # Solution
@@ -78,7 +84,7 @@ fn sum_masked_values(&mut self) {
             _ => {
                 if let Some(cmask) = mask.clone() {
                     lazy_static! {
-                        static ref RE: Regex = Regex::new(r"\d+").unwrap(); 
+                        static ref RE: Regex = Regex::new(r"\d+").unwrap();
                     }
                     let location = RE.find(key).unwrap().as_str().parse::<u64>().unwrap();
                     let mask_unchange = cmask.replace("X", "0");
@@ -116,7 +122,7 @@ mask = 10X
 
 OR = 010 | 100 = 110
 AND = 110(OR) & 101 = 100
-finally value, 100 is inserted into the memory address 0 
+finally value, 100 is inserted into the memory address 0
 ```
 
 I ran the program, and got the correct answer.
@@ -128,7 +134,7 @@ part1 ran in : 15.2821ms
 
 ## Part2
 
-In the 2, since the behavior of mask values changed, I am going to create a new function to handle the new mask behavior. 
+In the 2, since the behavior of mask values changed, I am going to create a new function to handle the new mask behavior.
 
 ```rust
 fn decode_address(&mut self) {
@@ -142,7 +148,7 @@ fn decode_address(&mut self) {
             _ => {
                 if let Some(cmask) = mask.clone() {
                     lazy_static! {
-                        static ref RE: Regex = Regex::new(r"\d+").unwrap(); 
+                        static ref RE: Regex = Regex::new(r"\d+").unwrap();
                     }
                     let value = value.parse::<u64>().unwrap();
                     let address = RE.find(key).unwrap().as_str().parse::<u64>().unwrap();
@@ -161,7 +167,7 @@ fn decode_address(&mut self) {
 }
 ```
 
-The `decode_address` function is similar to the `sum_masked_values` function. The only difference is that we are now applying the mask to the memory address instead of the memory value. Because the address can be diverged into multiple addresses, I created a new vector to hold all the addresses and insert the value into each address. 
+The `decode_address` function is similar to the `sum_masked_values` function. The only difference is that we are now applying the mask to the memory address instead of the memory value. Because the address can be diverged into multiple addresses, I created a new vector to hold all the addresses and insert the value into each address.
 
 Next, I created a new function called `change_address` to generate multiple addresses.
 
@@ -190,8 +196,8 @@ fn change_address(&self, address: u64, mask: Vec<char>, addresses: &mut Vec<u64>
 The `change address` function does the followings:
 
     1. Take the last character from the mask. If the mask is empty, then push the `addr_so_far` to the `addresses` vector and return nothing.
-    2. If the current mask bit (the last character) is 0, I applied the current mask bit to the address' corresponding bit using a `& (bitwise AND)` operator becuase we want to keep the bit unchanged. 
-    3. If the current mask bit is 1, we don't worry about the corresponding address bit. So I set the corresponding address bit set to 1. 
+    2. If the current mask bit (the last character) is 0, I applied the current mask bit to the address' corresponding bit using a `& (bitwise AND)` operator becuase we want to keep the bit unchanged.
+    3. If the current mask bit is 1, we don't worry about the corresponding address bit. So I set the corresponding address bit set to 1.
     4. If the current mask bit is X, then we need to generate two addresses. One with the corresponding address bit set to 0 and the other with the corresponding address bit set to 1.
     5. After step 2,3 and 4, I added the resulting value to the `addr_so_far` and recursively called the `change_address` function with the updated `addr_so_far`, the mask without the last character and index + 1.
 
