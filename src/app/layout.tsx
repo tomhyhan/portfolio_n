@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import clsx from 'clsx'
 import Footer from '@/components/footer'
 import { openGraphBasic } from '@/lib/shared-metadata'
+import Authprovider from '@/context/authprovider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -33,9 +34,11 @@ export default function RootLayout({
   return (
     <html lang="en">
         <body className={clsx(inter.className, "bg-slate-900 h-fit")}>
-          <Header />
-          {children}
-          <Footer />
+            <Authprovider>
+                <Header />
+                {children}
+                <Footer />
+            </Authprovider>
         </body>
     </html>
   )

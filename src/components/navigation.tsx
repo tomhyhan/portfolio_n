@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React from 'react'
 import {AiFillGithub, AiFillLinkedin} from "react-icons/ai"
 
 export default function Navigation({navLinks} : {navLinks: { name: string, href: string }[], pathname: string}) {
@@ -46,7 +45,11 @@ export default function Navigation({navLinks} : {navLinks: { name: string, href:
                         <AiFillLinkedin size="32px" />
                     </a>
                 </li>
+                <li>
+                    {/* <Login /> */}
+                </li>
             </ul>
+            
         </>
         
       )
