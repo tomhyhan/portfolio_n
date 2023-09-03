@@ -4,6 +4,8 @@ import PostPage from '@/components/postPage'
 import { Metadata } from 'next'
 import { openGraphBasic } from '@/lib/shared-metadata'
 
+export const dynamic = 'force-static'
+
 export async function generateStaticParams() {
     return allPosts.filter(post => post.category == "algo").map((post) => ({
       slug: post.slug,

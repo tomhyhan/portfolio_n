@@ -18,10 +18,10 @@ export default function Navbar() {
     const pathname = usePathname()  
 
     return (
-        <Disclosure as="nav" className="bg-slate-800 w-full">
+        <Disclosure as="nav" className="bg-slate-800 w-full ">
         {({ open }) => (
             <>
-            <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div className="w-full px-2 sm:px-6 lg:px-8 m-0 p-0 ml-2">
                 <div className="relative flex h-16 items-center justify-between">
                 <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                     <MobileNavBtn open={open}/>

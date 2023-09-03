@@ -4,6 +4,7 @@ import PostCard from '@/components/postCard';
 import { compareDesc } from 'date-fns';
 import { openGraphBasic } from '@/lib/shared-metadata';
 
+
 export const metadata = {
     title: "Algorithm",
     description: "Showing My Algorithm",

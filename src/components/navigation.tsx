@@ -39,7 +39,7 @@ export default function Navigation({navLinks} : {navLinks: { name: string, href:
                         <AiFillGithub size="32px" />
                     </a>
                 </li>
-                <li className="">
+                <li className="mr-2">
                     <a href="https://www.linkedin.com/in/tom-han-802a43200/"
                     target="_blank" rel="noopener noreferrer">
                         <AiFillLinkedin size="32px" />
