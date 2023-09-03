@@ -43,3 +43,6 @@ plan.txt
 #uploadpost
 uploadpost/node_modules
 uploadpost/.env
+
+#cdk
+cdk

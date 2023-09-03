@@ -1,0 +1,271 @@
+---
+title: OAuth & Next.js - Part2
+slug: 'Next.js-oauth-2'
+description: 'Implementing Oauth with Next.js'
+publishedAt: '2023-09-02'
+status: 'published'
+tags: 'OAuth,Next.js,NextAuth.js'
+postTitle: 'OAuth & Next.js - Part2'
+category: 'dev'
+---
+
+This is the second part of the series. I am going to use the same project that I created in the first part. However, this time, I am going to use `next-auth` to show you how easy and simple it is to implement `OAuth`.
+
+Next-auth is an authentication solution for Next.js applications. It is easy, flexible and secure way to add authentication to your Next.js app. It supports all types of authentication methods including passwords, OAuth, JWT, Server Sessions, and more.
+
+# Prerequisites
+
+Initialize a Next.js project and install `next-auth`:
+
+```bash
+npx create-next-app@latest
+npm i next-auth
+```
+
+# Setup
+
+Since we already have our Google OAuth credentials, we just need to modify the callback url to `http://localhost:3000/api/auth/callback/google`. The `next-auth` then knows we are using Google OAuth.
+
+# Next Auth Api Routes
+
+Next, we are going to create a config and api route to handle OAuth process of requesting permissions, fetching OAuth tokens, and getting user profile just like in part 1.
+
+Create a `route.ts` file in the `/app/api/auth/[...nextauth]` folder.
+
+```javascript
+import { authOptions } from "@/lib/config"
+import NextAuth from "next-auth"
+
+const handler = NextAuth(authOptions)
+
+export { handler as GET, handler as POST }
+```
+
+According to the documentation, we need to pass the config object to the `NextAuth` function which takes Request instance and return a Response instance. The rest of the process is handled by `next-auth`.
+
+Now lets create a `config.ts` file in the `src/lib` folder
+
+```javascript
+import GoogleProvider from "next-auth/providers/google"
+
+const is_valid = (key: string, default_env =  undefined) => { 
+    const env_val = process.env[key] || default_env
+    if (env_val == null) {
+        throw new Error(`Environment variable - ${key} is not set`)
+    }
+    return env_val
+}
+
+const config = {
+    OAUTH_CLIENT: is_valid('OAUTH_CLIENT'),
+    OAUTH_SECRET: is_valid('OAUTH_SECRET'),
+}
+
+export const authOptions = {
+    providers: [
+        GoogleProvider({
+        clientId: config.OAUTH_CLIENT,
+        clientSecret: config.OAUTH_SECRET,
+      }),
+    ],
+  }
+```
+
+The Typescript complains about `undefined` value when it is directly thrown into our `clientId` and `clientSecret`. So, let's created a helper function to check if the environment variable is set or not. If it is not set, it throws an error. Otherwise, it returns the value.
+
+# Creating Auth Context
+
+Instead of creating an AuthContext from scratch, `next-auth` already provides `SessionProvider` which we can use to create our own AuthContext.
+
+```javascript
+'use client'
+import React from 'react'
+import { SessionProvider } from 'next-auth/react';
+
+export default function Authprovider({children}: {
+    children: React.ReactNode
+    }) {
+    return (
+        <SessionProvider>
+            {children}
+        </SessionProvider>
+    )
+}
+```
+We wrap our children with `SessionProvider` which provides `session` object to all the children components. We create a wrapper component called `AuthProvider` so that we can use it with server components.
+
+Next, we need to wrap our root layout page with `AuthProvider` component.
+
+```javascript
+import './globals.css'
+import Authprovider from './context/authprovider'
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>
+            <Authprovider>
+                {children}
+            </Authprovider>
+        </body>
+    </html>
+  )
+}
+```
+
+# Creating Home Page
+
+We are going to create a simple home page that asks the user to login.
+
+```javascript
+import LoginBtn from '../components/login-btn'
+
+export default function Home() {
+  return (
+    <main>
+      <h1>Welcome to my website</h1>
+      <LoginBtn />
+    </main>
+  )
+}
+```
+
+# Creating Login Button
+
+Now, let's create a login button component that will be used in the home page.
+
+```javascript
+'use client'
+import { useSession, signIn, signOut } from "next-auth/react"
+import Link from 'next/link'
+
+const btnStyle = "border-2 px-2 py-1 mx-2"
+
+export default function LoginBtn() {
+  const { status } = useSession()
+
+    if (status == 'loading') return (<div>Loading...</div>)   
+
+    if (status == "unauthenticated") {
+        return (
+            <>
+            Not signed in <br />
+            <button className={btnStyle} onClick={() => signIn()}>Sign in</button>
+            </>
+        )
+    }
+
+    return (
+      <>
+        You are Signed in! <br />
+        <div>
+            <Link className="text-cyan-500" href={"http://localhost:3000/profile"}>Go to Profile -&gt; </Link>
+        </div>
+        <button className={btnStyle} onClick={() => signOut()}>Sign out</button>
+      </>
+    )
+}
+```
+
+The `useSession` hook returns a `status` property. The `status` can be `loading`, `unauthenticated`, `authenticated`.
+
+    1. If the status is `loading`, we show loading text.
+    2. If the status is `unauthenticated`, we show a Sign in button.
+    3. If the status is `authenticated`, we show a link to a profile page and Sign out button.
+
+# Creating Profile Page
+
+With login button in place, let's create a profile page.
+
+```javascript
+"use client"
+
+import { useSession } from 'next-auth/react';
+export default function page() {
+    const { data: session } = useSession()
+
+  return (
+    <div>{session?.user?.email}</div>
+  )
+}
+```
+Our profile page simply show user email.
+
+# Creating Protected Page
+
+Now, let's add a protected component to our profile page so that only authenticated user can access it.
+
+```javascript
+"use client"
+import React from 'react'
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+
+export default function Protected({children}: { 
+    children: React.ReactNode
+}) {
+    const { status } = useSession()
+
+    if (status == "unauthenticated") {
+        return (
+            <div>
+                <p>Not logged in</p>
+                <p>Please Login to access this page</p>
+                <Link href="/">Home</Link>
+            </div>
+        )
+    }
+
+  return (
+    <>{children}</>
+  )
+}
+```
+If the user is not log in, we show a message and a link to home page. Otherwise, we proceed with the children components.
+
+Now, let's add our protected component to our profile layout.
+
+```javascript
+import Authprovider from './context/authprovider'
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>
+            <Authprovider>
+                {children}
+            </Authprovider>
+        </body>
+    </html>
+  )
+}
+```
+
+# Testing Our App
+
+Just like in part 1, navigate to `http://localhost:3000` and click on the Sign in button. You will be redirected to Google OAuth page. Once you login, you will see a signed in message and a link to a profile page. Click on the link and you will see your email address. 
+
+Now sign out and manually type in `http://localhost:3000/profile` in your browser, you will see a message asking you to login and a link to the home page. 
+
+And that's it. We have successfully implemented OAuth with `next-auth`.
+
+# Summary
+
+In this Post, we have built Next.js app that can handle OAuth with `next-auth`. We created a same application that we created in part 1. However, this time, the app is much simpler, easier and secure to implement.
+
+One thing to note is that we managed our session in client side. 
+However, `next-auth` also provides a way to manage session in server side. If you are interested checkout the `next-auth` documentation.
+
+The full code can be found in [here](https://github.com/tomhyhan/oauth-part2)
+
+
+
+
