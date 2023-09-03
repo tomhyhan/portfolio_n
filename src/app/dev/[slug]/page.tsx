@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation'
 import PostPage from '@/components/postPage'
 import { Metadata } from 'next'
 import { openGraphBasic } from '@/lib/shared-metadata'
+import { config } from '@/lib/config'
 
-export const dynamic = 'force-static'
+export const dynamic = config.ENVIRONMENT == "production" ? 'auto' : 'force-static'
 
 export async function generateStaticParams() {
     return allPosts.filter(post => post.category == "dev").map((post) => ({
