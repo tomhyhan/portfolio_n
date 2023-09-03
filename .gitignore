@@ -45,4 +45,4 @@ uploadpost/node_modules
 uploadpost/.env
 
 #cdk
-./cdk
+cdk
