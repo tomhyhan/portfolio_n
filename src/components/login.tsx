@@ -15,8 +15,8 @@ export default async function Login() {
     const component = session?.user?.image ? <Image src={session?.user?.image} width={35} height={35} alt="User Image" className="rounded-lg cursor-pointer"/> : <FaUserCircle size="32px" className="cursor-pointer text-indigo-400" />
 
     return (
-        <div className="bg-slate-800 flex
-     items-center text-white pr-5 pt-1">
+        <div className="bg-slate-800 lg:flex
+     items-center text-white pr-5 pt-4 lg:pt-1">
             <LoginPopover loginComponent={component}/>
         </div>
     )
