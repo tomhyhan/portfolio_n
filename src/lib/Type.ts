@@ -13,4 +13,9 @@ export type Comment = {
 
 export type CommentList = {
     [key: string]: Comment[];
-  }
+}
+
+export type CommentWithReplies = {
+    comment: Comment;
+    replies: CommentWithReplies[];
+}
