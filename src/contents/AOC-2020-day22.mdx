@@ -1,0 +1,93 @@
+---
+title: The Advent of Rust - AOC 2020 day 22
+slug: 'AOC-2020-day22'
+description: 'Solving the advent of code 2020 day 22 in Rust'
+publishedAt: '2023-09-07'
+status: 'solved'
+tags: 'recursion, deque'
+postTitle: 'Day 22: Crab Combat'
+category: 'algo'
+---
+
+In today's post, I will dive into my solution to AOC 2020 day 12 in Rust. The Challenge can be found [here](https://adventofcode.com/2020/day/22).
+
+# Problem Statement
+
+<Collapse>
+Part 1 is relatively simple. We are given two decks of cards and we have to simulate the `Combat` game. The game is played as follows:
+
+    1. Each player draws a card from the top of their deck.
+    2. Player with higher card value wins the round.
+    3. The winner place both cards at the bottom of their deck.
+
+The game ends when one of the player has no more card left. Then, we calculate the winner's score by adding up the product of the card value and its position in the deck.
+
+Part 2 becomes more complex with additional rules. Now when player draws a card, if the card's value is less than or eqaul to the number of the cards left in the deck, players play a sub-game. The sub-game repeats the same rules as a main game. To prevent infinite recursion, we check if the current deck has been seen before. If so, player 1 (crab) wins the game. The rest of the rules are the same as part 1.
+</Collapse>
+
+# Input
+<Collapse>
+#### Sample input:
+```text
+Player 1:
+9
+2
+6
+3
+1
+
+Player 2:
+5
+8
+4
+7
+10
+```
+Full `Input` can be found in [here](https://adventofcode.com/2020/day/22/input). You need to log in to get your input.
+</Collapse>
+
+# Solution
+
+## Part 1
+
+To play the game, I am going to create a `struct` to represent the game.
+
+```rust
+struct Combat {
+    crab: VecDeque<i32>,
+    player: VecDeque<i32>
+}
+
+impl Combat {
+    fn new() -> Self {
+        let content = get_file("src/input/q22.txt").unwrap();
+        let (player1, player2) = content.split_once("\r\n\r\n").unwrap();
+        let crab = player1.lines().skip(1).map(|num| num.parse::<i32>().unwrap()).collect();
+        let player = player2.lines().skip(1).map(|num| num.parse::<i32>().unwrap()).collect();
+        Self {crab,player}
+    }
+}
+```
+I used a `deque` to represent the deck of cards for both players. Player 1 is a crab and player 2 is a player.
+
+Next, we are going to implement the `play` function to simulate the game.
+
+```rust
+    fn play(&mut self) {
+         while !self.player.is_empty() && !self.crab.is_empty() {
+            let crab_top = self.crab.pop_front().unwrap();
+            let player_top = self.player.pop_front().unwrap();
+
+            if player_top > crab_top {
+                self.player.push_back(player_top);
+                self.player.push_back(crab_top);
+            } else {
+                self.crab.push_back(crab_top);
+                self.crab.push_back(player_top);
+            }
+        } 
+        let cards = if self.player.is_empty() {self.crab.clone()} else {self.player.clone()};
+        self.calc_total_score(cards); 
+    }
+```
+The 
