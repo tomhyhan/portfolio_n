@@ -1,4 +1,6 @@
-import { Comment, CommentList } from "@/lib/Type";
+import { Comment } from "@/lib/Type";
+import { client } from "./dynamodb";
+import { PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 export const comments: Comment[] = [
     {id:"1", comment: "comment aaaa", authorid: "1", postid: "1", parentid:"0"},
@@ -9,3 +11,26 @@ export const comments: Comment[] = [
     {id:"6",comment: "comment ffff", authorid: "6", postid: "1", parentid:"1"},
     {id:"7",comment: "comment gggg", authorid: "7", postid: "1", parentid:"2"},
 ]
+// 
+
+async function postComments(comment: Comment) {
+    const params = {
+        // also add user info.. email, image, name
+        TableName: "comment",
+        Item: {
+            id: { S: comment.id },
+            comment: { S: comment.comment },
+            authorid: { S: comment.authorid },
+            postid: { S: comment.postid },
+            parentid: { S: comment.parentid },
+        }
+    }
+    
+    const command = new PutItemCommand(params);
+    try {
+        await client.send(command);
+    }catch (err) {
+        console.error(err);
+        throw new Error('Error updating views');
+    }
+}

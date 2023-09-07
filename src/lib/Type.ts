@@ -8,7 +8,7 @@ export type Comment = {
     comment: string,
     authorid: string,
     postid: string,
-    parentid: string
+    parentid: string,
 }
 
 export type CommentList = {

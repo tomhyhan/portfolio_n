@@ -7,14 +7,13 @@ export async function GET(request: NextRequest) {
 
     // get comments from database
     // build comment block
-
-    
     try {
         const commentList = generateCommentBlocks(comments);
     } catch (err) {
         return NextResponse.json("Error getting comments", { status: 500 });
     }
-    NextResponse.json("dummy", { status: 200 });
+
+    return NextResponse.json("dummy", { status: 200 });
     // const x = {}
 }
 
