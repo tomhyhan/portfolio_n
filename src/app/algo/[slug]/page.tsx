@@ -4,6 +4,7 @@ import PostPage from '@/components/postPage'
 import { Metadata } from 'next'
 import { openGraphBasic } from '@/lib/shared-metadata'
 import { config } from '@/lib/config'
+import Comments from '@/components/comment/comments'
 
 export const dynamic = config.ENVIRONMENT == "production" ? 'auto' : 'force-static'
 
@@ -50,6 +51,7 @@ export default async function Page({params: {slug}}: {params: {slug: string}}) {
                         md:px-20 
                         ">
             <PostPage post={post} />
+            <Comments slug={slug}/>
         </div>
     )
 }

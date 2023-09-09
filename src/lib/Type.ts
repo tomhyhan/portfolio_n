@@ -6,16 +6,40 @@ export type Post = {
 export type Comment = {
     id: string,
     comment: string,
-    authorid: string,
-    postid: string,
-    parentid: string,
+    authorId: string,
+    postId: string,
+    parentId: string,
+    userEmail: string,
+    userImage:string,
+    date: string
 }
 
 export type CommentList = {
-    [key: string]: Comment[];
+    [key: string]: DenamoComment[];
 }
 
 export type CommentWithReplies = {
-    comment: Comment;
+    comment: DenamoComment;
     replies: CommentWithReplies[];
 }
+
+export type CommentBody = {
+    comment: string;
+    email: string ;
+    image: string;
+    post: string;
+    parentId: string | null;
+}
+
+export type DenamoComment = {
+    GSI1PK: { S: string },
+    userImage: {
+      S: string
+    },
+    userEmail: { S: string },
+    parentid: { S: string },
+    authorid: { S: string },
+    comment: { S: string },
+    pk: { S: string },
+    date: { S: string }
+  }
