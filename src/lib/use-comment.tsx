@@ -1,6 +1,7 @@
 import React from 'react'
-import { CommentBody } from './Type'
+import { CommentBody, DenamoComment } from './Type'
 import useSWR from 'swr';
+import { generateData } from './comment/utils';
 
 async function getComments(url: string) {
     const response = await fetch(url);
@@ -14,7 +15,7 @@ async function getComments(url: string) {
 
 export default function UseComment(postId: string) {
     
-    const {data, isLoading, error } = useSWR(
+    const {data, isLoading, error, mutate } = useSWR(
         `${process.env.BASE_URL}/api/comments?postId=${postId}`, (url:string) => getComments(url), 
     )
 
@@ -31,5 +32,16 @@ export default function UseComment(postId: string) {
         }
     }
 
-  return {postComment, data, isLoading, error}
+    const updateComment = async (comment: DenamoComment) => {   
+        const parentId = "COMMENT#root"
+        let current = data
+        if (comment.parentid.S === parentId) {
+            mutate([ ...data, comment])
+        } else {
+            generateData(current, comment)
+            mutate([...current])
+        }
+    }
+
+  return {postComment, data, isLoading, error, updateComment}
 }

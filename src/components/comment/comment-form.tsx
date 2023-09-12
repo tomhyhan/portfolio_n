@@ -1,11 +1,12 @@
-import { CommentBody } from '@/lib/Type'
+import { CommentBody, DenamoComment } from '@/lib/Type'
 import { useSession } from 'next-auth/react'
 import React from 'react'
 
-export default function CommentForm({slug, postComment, parentId} : {
+export default function CommentForm({slug, postComment, parentId, updateComment} : {
     slug: string,
     postComment: (body: CommentBody) => any,
-    parentId?: string
+    parentId?: string,
+    updateComment: (comment: DenamoComment) => any
 }) {
     const {data: session } = useSession()
     
@@ -15,9 +16,8 @@ export default function CommentForm({slug, postComment, parentId} : {
             return
         }
         const parent = parentId? parentId: null
-        console.log(event.currentTarget)
         const commentVal = event.currentTarget.comment.value
-        console.log(typeof commentVal)
+
         const body = {
             comment: commentVal,
             email: session.user.email!,
@@ -25,9 +25,11 @@ export default function CommentForm({slug, postComment, parentId} : {
             post: slug,
             parentId: parent
         }
-        console.log(body)
         try {
             const res = await postComment(body)
+            console.log("res")
+            console.log(res)
+            await updateComment(res)
         } catch (error) { 
             console.log(error)
         } 
