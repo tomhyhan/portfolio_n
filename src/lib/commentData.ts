@@ -6,63 +6,12 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 
-export const comments: any[] = [
-  {
-    id: '1',
-    comment: 'comment aaaa',
-    authorid: '1',
-    postid: '1',
-    parentid: '0',
-  },
-  {
-    id: '2',
-    comment: 'comment bbbb',
-    authorid: '2',
-    postid: '1',
-    parentid: '0',
-  },
-  {
-    id: '3',
-    comment: 'comment cccc',
-    authorid: '3',
-    postid: '1',
-    parentid: '0',
-  },
-  {
-    id: '4',
-    comment: 'comment dddd',
-    authorid: '4',
-    postid: '1',
-    parentid: '1',
-  },
-  {
-    id: '5',
-    comment: 'comment eeee',
-    authorid: '5',
-    postid: '1',
-    parentid: '4',
-  },
-  {
-    id: '6',
-    comment: 'comment ffff',
-    authorid: '6',
-    postid: '1',
-    parentid: '1',
-  },
-  {
-    id: '7',
-    comment: 'comment gggg',
-    authorid: '7',
-    postid: '1',
-    parentid: '2',
-  },
-];
 //
 
 export async function postComments(comment: Comment) {
   const params = {
     // also add user info.. email, image, name
-    TableName: 'comment',
+    TableName: 'postComment',
     Item: {
       pk: { S: comment.id },
       comment: { S: comment.comment },
@@ -71,7 +20,7 @@ export async function postComments(comment: Comment) {
       parentid: { S: comment.parentId },
       userEmail: { S: comment.userEmail },
       userImage: { S: comment.userImage },
-      date: { S: comment.date },
+      GSI1SK: { S: comment.date },
     },
   };
   const command = new PutItemCommand(params);
@@ -87,7 +36,7 @@ export async function postComments(comment: Comment) {
 export async function getComments(postid: string) {
   try {
     const params = {
-      TableName: 'comment',
+      TableName: 'postComment',
       IndexName: 'GSI1',
       KeyConditionExpression: 'GSI1PK = :pk',
       ExpressionAttributeValues: {
@@ -107,7 +56,7 @@ export async function getComments(postid: string) {
 
 async function updateComment(id: string) {
   const params = {
-    TableName: 'comment',
+    TableName: 'postComment',
     Key: {
       id: { S: id },
     },

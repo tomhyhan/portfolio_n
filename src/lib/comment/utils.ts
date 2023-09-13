@@ -8,8 +8,8 @@ export function generateCommentBlocks(comments: DenamoComment[]) {
     }
     commentList[comment.parentid.S].push(comment);
   }
-  const commentBlock = createComment(commentList, 'COMMENT#root');
-  return commentBlock;
+  // const commentBlock = createComment(commentList, 'COMMENT#root');
+  return commentList;
 }
 
 function createComment(commentList: CommentList, parentid: string) {

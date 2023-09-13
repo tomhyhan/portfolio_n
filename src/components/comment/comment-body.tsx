@@ -5,6 +5,7 @@ import React from 'react'
 export default function CommentDetail({comment}:{
     comment: DenamoComment
 }) {
+    const date = comment.GSI1SK.S.split("T")[0]
   return (
     <>
         <footer className="flex justify-between items-center mb-2">
@@ -17,8 +18,8 @@ export default function CommentDetail({comment}:{
                         {comment.userEmail.S}
                 </p>
                 <p className="text-sm text-gray-600 ">
-                    <time dateTime={comment.date.S}
-                    title={comment.date.S}>{comment.date.S}</time>
+                    <time dateTime={date}
+                    title={date}>{date}</time>
                 </p>
             </div>
         </footer>

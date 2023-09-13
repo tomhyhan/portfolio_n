@@ -1,5 +1,5 @@
 import { Comment, CommentList } from '@/lib/Type';
-import { comments, getComments, postComments } from '@/lib/commentData';
+import { getComments, postComments } from '@/lib/commentData';
 import { NextRequest, NextResponse } from 'next/server';
 import { ulid } from 'ulid';
 import { generateCommentBlocks } from './../../../lib/comment/utils';
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     parentId,
     userEmail: res.email,
     userImage: res.image,
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString(),
   };
   try {
     const commentData = await postComments(comment);
