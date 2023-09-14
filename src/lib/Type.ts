@@ -12,6 +12,7 @@ export type Comment = {
   userEmail: string;
   userImage: string;
   date: string;
+  deleted: boolean;
 };
 
 export type CommentList = {
@@ -42,4 +43,18 @@ export type DenamoComment = {
   comment: { S: string };
   pk: { S: string };
   GSI1SK: { S: string };
+};
+
+export type CommentController = {
+  postComment: (body: CommentBody) => Promise<any>;
+  data: CommentList;
+  isLoading: boolean;
+  error: any;
+  updateComment: (
+    comment: DenamoComment,
+    comments: CommentList,
+    parentId: string
+  ) => Promise<void>;
+  deleteComment: (commentId: string) => Promise<void>;
+  editComment: (commentId: string, comment: string) => Promise<void>;
 };

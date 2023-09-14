@@ -32,9 +32,7 @@ export default function UseComment(postId: string) {
     }
 
     const updateComment = async (comment: DenamoComment, comments: CommentList, parentId: string) => {   
-        const parentComments = comments[parentId]
         const newComments = {...comments}
-        console.log(newComments[parentId])
         if (parentId in newComments) {
             newComments[parentId] = [...newComments[parentId], comment]
         } else {
@@ -43,5 +41,24 @@ export default function UseComment(postId: string) {
         mutate(newComments)
     }
 
-  return {postComment, data, isLoading, error, updateComment}
+    const editComment = async (commentId: string, comment: string) => {
+
+    }
+    
+    const deleteComment = async (commentId: string) => {
+        commentId=commentId.replace("COMMENT#", "")
+        await fetch(`${process.env.BASE_URL}/api/comments?commentId=${commentId}`, {
+            method: 'DELETE',
+        })
+    }
+    
+    
+  return {postComment, 
+    data, 
+    isLoading, 
+    error, 
+    updateComment, 
+    deleteComment,
+    editComment
+}
 }

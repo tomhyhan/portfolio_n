@@ -21,6 +21,7 @@ export async function postComments(comment: Comment) {
       userEmail: { S: comment.userEmail },
       userImage: { S: comment.userImage },
       GSI1SK: { S: comment.date },
+      deleted: { BOOL: comment.deleted },
     },
   };
   const command = new PutItemCommand(params);
@@ -54,18 +55,18 @@ export async function getComments(postid: string) {
   }
 }
 
-async function updateComment(id: string) {
+export async function deleteComment(id: string) {
   const params = {
     TableName: 'postComment',
     Key: {
-      id: { S: id },
+      pk: { S: id },
     },
-    UpdateExpression: 'SET #comment = :comment',
+    UpdateExpression: 'SET #deleted = :deleted',
     ExpressionAttributeNames: {
-      '#comment': 'comment',
+      '#deleted': 'deleted',
     },
     ExpressionAttributeValues: {
-      ':comment': { S: 'Comment Deleted...' },
+      ':deleted': { BOOL: true },
     },
   };
 

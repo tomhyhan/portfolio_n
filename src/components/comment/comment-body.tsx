@@ -1,9 +1,11 @@
-import { DenamoComment } from '@/lib/Type'
+import { CommentController, DenamoComment } from '@/lib/Type'
 import Image from 'next/image'
 import React from 'react'
+import CommentEdit from './comment-edit'
 
-export default function CommentDetail({comment}:{
+export default function CommentDetail({comment,commentController}:{
     comment: DenamoComment
+    commentController: CommentController
 }) {
     const date = comment.GSI1SK.S.split("T")[0]
   return (
@@ -22,6 +24,7 @@ export default function CommentDetail({comment}:{
                     title={date}>{date}</time>
                 </p>
             </div>
+        <CommentEdit comment={comment} commentController={commentController}/>
         </footer>
         <p className="text-gray-500 mx-5">
             {comment.comment.S}
