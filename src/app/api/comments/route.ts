@@ -1,5 +1,5 @@
-import { Comment, CommentList } from '@/lib/Type';
-import { deleteComment, getComments, postComments } from '@/lib/commentData';
+import { Comment, CommentList, DenamoComment } from '@/lib/Type';
+import { deleteComment, getComments, postComments, putComments } from '@/lib/commentData';
 import { NextRequest, NextResponse } from 'next/server';
 import { ulid } from 'ulid';
 import { generateCommentBlocks } from './../../../lib/comment/utils';
@@ -9,9 +9,9 @@ import { authOptions } from '@/lib/authoption';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get('postId');
-
+    console.log("getting comments")
   if (!postId) {
-    return NextResponse.json('Error getting comments', { status: 404 });
+    return NextResponse.json({message: 'Error getting comments'}, { status: 404 });
   }
 
   try {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const commentList = generateCommentBlocks(comments as any);
     return NextResponse.json(commentList, { status: 200 });
   } catch (err) {
-    return NextResponse.json('Error getting comments', { status: 500 });
+    return NextResponse.json({message: 'Error getting comments'}, { status: 500 });
   }
 }
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    return NextResponse.json('Not Authenticated', { status: 401 });
+    return NextResponse.json({message:'Not Authenticated'}, { status: 401 });
   }
 
   ulid;
@@ -45,12 +45,30 @@ export async function POST(request: NextRequest) {
     deleted: false,
   };
   try {
-    const commentData = await postComments(comment);
+    const commentData : DenamoComment = await postComments(comment);
+    commentData.new = true;
     return NextResponse.json(commentData, { status: 200 });
   } catch {
-    return NextResponse.json('Error posting comment', { status: 500 });
+    return NextResponse.json({message: "Error posting comment"}, { status: 500 });
   }
 }
+
+export async function PUT(request: NextRequest) {
+    const res = await request.json();
+    const session = await getServerSession(authOptions);
+    const {commentId, comment} = res;
+    if (!session) {
+      return NextResponse.json({message:'Not Authenticated'}, { status: 401 });
+    }
+    
+    try {
+        await putComments(commentId, comment);
+        return NextResponse.json({ status: 200 });
+      } catch {
+        return NextResponse.json({message:'Error updating comment'}, { status: 500 });
+      }
+}
+
 
 export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -58,18 +76,17 @@ export async function DELETE(request: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    return NextResponse.json('Not Authenticated', { status: 401 });
+    return NextResponse.json({message:'Not Authenticated'}, { status: 401 });
   }
 
   if (!commentId) {
-    return NextResponse.json('Error deleting comment', { status: 404 });
+    return NextResponse.json({message:'Error deleting comment'}, { status: 404 });
   }
-  console.log('COMMENT#' + commentId);
+
   try {
     deleteComment('COMMENT#' + commentId);
-    return NextResponse.json('Not Implemented', { status: 200 });
+    return NextResponse.json({ status: 200 });
   } catch {
-    console.error('Error deleting comment');
-    return NextResponse.json('Error deleting comment', { status: 500 });
+    return NextResponse.json({message:'Error deleting comment'}, { status: 500 });
   }
 }

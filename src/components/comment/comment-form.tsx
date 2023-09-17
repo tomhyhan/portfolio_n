@@ -1,4 +1,5 @@
 import { CommentBody, CommentList, DenamoComment } from '@/lib/Type'
+import { handleError } from '@/lib/error/handle-error'
 import { useSession } from 'next-auth/react'
 import React from 'react'
 
@@ -29,7 +30,7 @@ export default function CommentForm({slug, postComment, parent, updateComment, c
             const res = await postComment(body)
             await updateComment(res, comments, parent)
         } catch (error) { 
-            console.log(error)
+            throw error
         } 
         // @ts-ignore
         event.target.comment.value = ""

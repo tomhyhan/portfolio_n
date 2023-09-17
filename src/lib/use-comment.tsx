@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { CommentBody, CommentList, DenamoComment } from './Type'
 import useSWR from 'swr';
+import { handleError } from './error/handle-error';
+import fetchWarpper from './http/fetch-wrapper';
 
 async function getComments(url: string) {
     const response = await fetch(url);
@@ -13,10 +15,27 @@ async function getComments(url: string) {
 }
 
 export default function UseComment(postId: string) {
-    
     const {data, isLoading, error, mutate } = useSWR(
-        `${process.env.BASE_URL}/api/comments?postId=${postId}`, (url:string) => getComments(url), 
+        `${process.env.BASE_URL}/api/comments?postId=${postId}`, (url:string) => getComments(url), {
+            dedupingInterval: 1000,            
+            fallback: []
+        },
     )
+    const [isNew, setIsNew] = useState<string|null>(null)
+    const [isEditing, setIsEditing] = useState<string|null>(null)
+    const editCommentRef = useRef<HTMLTextAreaElement | null>(null)
+
+    useEffect(() => {
+        editCommentRef.current?.focus()
+    },[editCommentRef.current])
+
+    const handleNew = async (commentId: string) => {
+        setIsNew(commentId)
+    }
+
+    const handleIsEditing = async (commentId: string) => {
+        setIsEditing(commentId)
+    }
 
     const postComment = async (body: CommentBody) => {
         try {
@@ -25,40 +44,79 @@ export default function UseComment(postId: string) {
                 body: JSON.stringify(body),
             })
             const commentReponse = await res.json()
+            setIsNew(commentReponse.pk.S)
             return commentReponse
         } catch (error) {
-            throw new Error("Error posting comment")
+            throw error
         }
     }
 
     const updateComment = async (comment: DenamoComment, comments: CommentList, parentId: string) => {   
-        const newComments = {...comments}
-        if (parentId in newComments) {
-            newComments[parentId] = [...newComments[parentId], comment]
+        comment.new = true
+        if (parentId in comments) {
+            comments[parentId] = [...comments[parentId], comment]
         } else {
-            newComments[parentId] = [comment]
+            comments[parentId] = [comment]
         }
-        mutate(newComments)
+        mutate({...comments})
     }
 
-    const editComment = async (commentId: string, comment: string) => {
+    const editComment = async (commentId: string, comment: string, parentId: string) => {
+        // edit comment
+        try{
+            // await fetch(`${process.env.BASE_URL}/api/comments`, {
+            //     method: 'PUT',
+            //     body: JSON.stringify({commentId, comment}),
+            // })
+            await fetchWarpper(`${process.env.BASE_URL}/api/comments`, {
+                    method: 'PUT',
+                    body: JSON.stringify({commentId, comment}),
+            })
+        } catch (error) {
+            throw error
+        }
 
+        for (const childComment of data[parentId]) {
+            if (childComment.pk.S === commentId) {
+                childComment.comment.S = comment
+            }
+        }
+        mutate({...data})
+
+        editCommentRef.current = null
+        setIsEditing(null)
     }
     
-    const deleteComment = async (commentId: string) => {
+    const deleteComment = async (commentId: string, parentId: string) => {
         commentId=commentId.replace("COMMENT#", "")
-        await fetch(`${process.env.BASE_URL}/api/comments?commentId=${commentId}`, {
-            method: 'DELETE',
-        })
+        try {
+            await fetch(`${process.env.BASE_URL}/api/comments?commentId=${commentId}`, {
+                method: 'DELETE',
+            })
+        } catch (error) {
+            throw error
+        }
+
+        for (const comment of data[parentId]) {
+            if (comment.pk.S === commentId) {
+                comment.deleted.BOOL = true
+            }
+        }
+        mutate({...data})
     }
     
     
   return {postComment, 
-    data, 
-    isLoading, 
-    error, 
-    updateComment, 
-    deleteComment,
-    editComment
-}
+        data, 
+        isLoading, 
+        error, 
+        updateComment, 
+        deleteComment,
+        editComment,
+        isEditing,
+        handleIsEditing,
+        editCommentRef,
+        isNew,
+        handleNew
+    }
 }

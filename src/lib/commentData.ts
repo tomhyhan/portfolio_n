@@ -1,17 +1,18 @@
-import { Comment } from '@/lib/Type';
+import { Comment, DenamoComment } from '@/lib/Type';
 import { client } from './dynamodb';
 import {
   PutItemCommand,
   QueryCommand,
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import { config } from './config';
 
 //
 
 export async function postComments(comment: Comment) {
   const params = {
     // also add user info.. email, image, name
-    TableName: 'postComment',
+    TableName: config.COMMENT_TABLENAME,
     Item: {
       pk: { S: comment.id },
       comment: { S: comment.comment },
@@ -37,7 +38,7 @@ export async function postComments(comment: Comment) {
 export async function getComments(postid: string) {
   try {
     const params = {
-      TableName: 'postComment',
+      TableName: config.COMMENT_TABLENAME,
       IndexName: 'GSI1',
       KeyConditionExpression: 'GSI1PK = :pk',
       ExpressionAttributeValues: {
@@ -55,9 +56,33 @@ export async function getComments(postid: string) {
   }
 }
 
+export async function putComments(commentId: string, comment: string) {
+    const params = {
+        TableName: config.COMMENT_TABLENAME,
+        Key: {
+          pk: { S: commentId },
+        },
+        UpdateExpression: 'SET #comment = :comment',
+        ExpressionAttributeNames: {
+          '#comment': 'comment',
+        },
+        ExpressionAttributeValues: {
+          ':comment': { S: comment },
+        },
+      };
+
+    const command = new UpdateItemCommand(params);
+    try {
+        await client.send(command);
+    } catch (err) {
+      console.error(err);
+      throw new Error('Error Posting Comment');
+    }
+}
+
 export async function deleteComment(id: string) {
   const params = {
-    TableName: 'postComment',
+    TableName: config.COMMENT_TABLENAME,
     Key: {
       pk: { S: id },
     },

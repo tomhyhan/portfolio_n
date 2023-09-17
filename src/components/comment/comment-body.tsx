@@ -26,9 +26,15 @@ export default function CommentDetail({comment,commentController}:{
             </div>
         <CommentEdit comment={comment} commentController={commentController}/>
         </footer>
-        <p className="text-gray-500 mx-5">
+        {commentController.isEditing === comment.pk.S 
+        ? <div className="py-2 px-4 mb-4 mx-5 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <textarea ref={commentController.editCommentRef}className='px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none outline-none' rows={3} defaultValue={comment.comment.S} required />
+        </div>
+        : <p className="text-gray-500 mx-5">
             {comment.comment.S}
-        </p>
+          </p>
+        }
+        
     </>
   )
 }

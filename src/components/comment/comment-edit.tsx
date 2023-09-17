@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { ButtonHTMLAttributes, Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { PiDotsThreeOutlineBold } from "react-icons/pi";
 import clsx from 'clsx';
@@ -16,10 +16,14 @@ export default function CommentEdit({comment, commentController}:{
 
     const handleDelete = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        // handle delete comment in frontend
-        await commentController.deleteComment(comment.pk.S)
+        await commentController.deleteComment(comment.pk.S, comment.parentid.S)
     }
     
+    const handleEdit = (event: React.SyntheticEvent) => {
+        event.preventDefault()
+        commentController.handleIsEditing(comment.pk.S)
+    }
+
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
@@ -39,7 +43,6 @@ export default function CommentEdit({comment, commentController}:{
       >
         <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
-            <form method="POST" action="#">
                 <Menu.Item>
                     {({ active }) => (
                     <button
@@ -48,12 +51,12 @@ export default function CommentEdit({comment, commentController}:{
                         active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                         'block w-full px-4 py-2 text-left text-sm'
                         )}
+                        onClick={handleEdit}
                     >
                         Edit
                     </button>
                     )}
                 </Menu.Item>
-                </form>
             <form method="DELETE" onSubmit={handleDelete}>
               <Menu.Item>
                 {({ active }) => (
