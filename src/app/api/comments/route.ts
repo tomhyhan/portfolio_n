@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const postId = searchParams.get('postId');
 
   if (!postId) {
-    return NextResponse.json({message: 'Error getting comments'}, { status: 404 });
+    return NextResponse.json({message: 'Error getting post id comments'}, { status: 404 });
   }
 
   try {
@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
     const commentList = generateCommentBlocks(comments as any);
     return NextResponse.json(commentList, { status: 200 });
   } catch (err) {
-    return NextResponse.json({message: 'Error getting comments'}, { status: 500 });
+    console.error(err);
+    return NextResponse.json({message: 'Error getting comments from server'}, { status: 500 });
   }
 }
 
