@@ -8,6 +8,7 @@ async function getComments(url: string) {
     const response = await fetch(url);
     
     if (!response.ok) {
+        console.error(await response.json())
         throw new Error('Error getting comments');
     }
     const comments = await response.json();
