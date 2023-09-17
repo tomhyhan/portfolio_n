@@ -10,3 +10,8 @@ export function generateCommentBlocks(comments: DenamoComment[]) {
   }
   return commentList;
 }
+
+export function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  

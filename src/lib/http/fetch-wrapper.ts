@@ -1,4 +1,4 @@
-export default async function fetchWarpper(url: string, options : any) {
+export default async function fetchWrapper(url: string, options : any) {
     try{
         const res = await fetch(url, {
             ...options
@@ -6,11 +6,11 @@ export default async function fetchWarpper(url: string, options : any) {
     
         if (!res.ok) {
             const {message} = await res.json(); 
-            console.log(message)
-            throw new Error(message);
+            const errorMsg = message ? message : "Something went wrong" 
+            throw new Error(errorMsg);
         }
+        return await res.json()
     } catch (error) {
-        console.log(error)
         throw error;
     }
 }

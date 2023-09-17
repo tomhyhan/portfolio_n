@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CommentBody, CommentList, DenamoComment } from './Type'
 import useSWR from 'swr';
-import { handleError } from './error/handle-error';
-import fetchWarpper from './http/fetch-wrapper';
+import fetchWrapper from './http/fetch-wrapper';
+import { delay } from './comment/utils';
 
 async function getComments(url: string) {
     const response = await fetch(url);
@@ -21,88 +21,70 @@ export default function UseComment(postId: string) {
             fallback: []
         },
     )
-    const [isNew, setIsNew] = useState<string|null>(null)
     const [isEditing, setIsEditing] = useState<string|null>(null)
+    const [networkError, setNetworkError] = useState<unknown|null>(null)
+    const isNew = useRef<string|null>(null)
     const editCommentRef = useRef<HTMLTextAreaElement | null>(null)
+    const commentRef = useRef<HTMLDivElement|null>(null)
 
     useEffect(() => {
         editCommentRef.current?.focus()
     },[editCommentRef.current])
 
-    const handleNew = async (commentId: string) => {
-        setIsNew(commentId)
-    }
+    
+    useEffect(() => { 
+        commentRef.current?.scrollIntoView({behavior: "smooth"})
+    }, [commentRef.current, commentRef, isNew, isNew.current])
+    
 
     const handleIsEditing = async (commentId: string) => {
+        isNew.current = commentId 
         setIsEditing(commentId)
     }
 
     const postComment = async (body: CommentBody) => {
         try {
-            const res = await fetch(`${process.env.BASE_URL}/api/comments`, {
+            const commentReponse = await fetchWrapper(`${process.env.BASE_URL}/api/comments`, {
                 method: 'POST',
                 body: JSON.stringify(body),
             })
-            const commentReponse = await res.json()
-            setIsNew(commentReponse.pk.S)
-            return commentReponse
+            isNew.current = commentReponse.pk.S
+            await mutate()
         } catch (error) {
-            throw error
-        }
-    }
+            setNetworkError(error)
 
-    const updateComment = async (comment: DenamoComment, comments: CommentList, parentId: string) => {   
-        comment.new = true
-        if (parentId in comments) {
-            comments[parentId] = [...comments[parentId], comment]
-        } else {
-            comments[parentId] = [comment]
         }
-        mutate({...comments})
+
     }
 
     const editComment = async (commentId: string, comment: string, parentId: string) => {
-        // edit comment
-        try{
-            // await fetch(`${process.env.BASE_URL}/api/comments`, {
-            //     method: 'PUT',
-            //     body: JSON.stringify({commentId, comment}),
-            // })
-            await fetchWarpper(`${process.env.BASE_URL}/api/comments`, {
+        try {
+            await fetchWrapper(`${process.env.BASE_URL}/api/comments`, {
                     method: 'PUT',
                     body: JSON.stringify({commentId, comment}),
             })
         } catch (error) {
-            throw error
+            setNetworkError(error)
         }
 
-        for (const childComment of data[parentId]) {
-            if (childComment.pk.S === commentId) {
-                childComment.comment.S = comment
-            }
-        }
-        mutate({...data})
-
+        // setIsNew(commentId)
+        isNew.current = commentId
         editCommentRef.current = null
         setIsEditing(null)
+        await mutate()
     }
     
     const deleteComment = async (commentId: string, parentId: string) => {
         commentId=commentId.replace("COMMENT#", "")
         try {
-            await fetch(`${process.env.BASE_URL}/api/comments?commentId=${commentId}`, {
+            await fetchWrapper(`${process.env.BASE_URL}/api/comments?commentId=${commentId}`, {
                 method: 'DELETE',
             })
+            isNew.current = commentId
+            await mutate()
         } catch (error) {
-            throw error
+            setNetworkError(error)
         }
-
-        for (const comment of data[parentId]) {
-            if (comment.pk.S === commentId) {
-                comment.deleted.BOOL = true
-            }
-        }
-        mutate({...data})
     }
     
     
@@ -110,13 +92,13 @@ export default function UseComment(postId: string) {
         data, 
         isLoading, 
         error, 
-        updateComment, 
+        networkError,
         deleteComment,
         editComment,
         isEditing,
         handleIsEditing,
         editCommentRef,
+        commentRef,
         isNew,
-        handleNew
     }
 }

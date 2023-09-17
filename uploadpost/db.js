@@ -56,7 +56,6 @@ export async function scanPost() {
 
 export async function deleteAllPost() {
   const items = await scanPost();
-  console.log(items);
   for (const item of items) {
     const deleteParams = {
       TableName: TABLENAME,

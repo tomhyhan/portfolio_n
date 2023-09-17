@@ -19,10 +19,6 @@ export type CommentList = {
   [key: string]: DenamoComment[];
 };
 
-export type CommentWithReplies = {
-  comment: DenamoComment;
-  replies: CommentWithReplies[];
-};
 
 export type CommentBody = {
   comment: string;
@@ -50,18 +46,13 @@ export type DenamoComment = {
 export type CommentController = {
   postComment: (body: CommentBody) => Promise<any>;
   data: CommentList;
-isLoading: boolean;
+  isLoading: boolean;
   error: any;
-  updateComment: (
-    comment: DenamoComment,
-    comments: CommentList,
-    parentId: string
-  ) => Promise<void>;
   deleteComment: (commentId: string, parentId: string) => Promise<void>;
   editComment: (commentId: string, comment: string, parentId: string) => Promise<void>;
   isEditing: string | null;
   handleIsEditing: (commentId:string) => void;
   editCommentRef: React.MutableRefObject<HTMLTextAreaElement | null>;
-  isNew: string | null;
-  handleNew: (commentId:string) => void;
+  commentRef: React.MutableRefObject<HTMLDivElement | null>;
+  isNew: React.MutableRefObject<string | null>;
 };

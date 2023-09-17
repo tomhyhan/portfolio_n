@@ -1,6 +1,4 @@
-import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { projects } from './projectType';
-import { CommentList, Comment, CommentWithReplies, DenamoComment } from '@/lib/Type';
 
 export function getCount(filter: string | null) {
   const my_projects = projects || null;

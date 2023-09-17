@@ -1,13 +1,11 @@
 import { CommentBody, CommentList, DenamoComment } from '@/lib/Type'
-import { handleError } from '@/lib/error/handle-error'
 import { useSession } from 'next-auth/react'
 import React from 'react'
 
-export default function CommentForm({slug, postComment, parent, updateComment, comments} : {
+export default function CommentForm({slug, postComment, parent, comments} : {
     slug: string,
     postComment: (body: CommentBody) => any,
     parent: string,
-    updateComment: (comment: DenamoComment, comments: CommentList, parentId: string) => any,
     comments: CommentList
 }) {
     const {data: session } = useSession()
@@ -26,12 +24,8 @@ export default function CommentForm({slug, postComment, parent, updateComment, c
             post: slug,
             parentId: parent
         }
-        try {
-            const res = await postComment(body)
-            await updateComment(res, comments, parent)
-        } catch (error) { 
-            throw error
-        } 
+         await postComment(body)
+
         // @ts-ignore
         event.target.comment.value = ""
     }

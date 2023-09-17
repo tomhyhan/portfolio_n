@@ -1,4 +1,4 @@
-import { Comment, CommentList, DenamoComment } from '@/lib/Type';
+import { Comment, DenamoComment } from '@/lib/Type';
 import { deleteComment, getComments, postComments, putComments } from '@/lib/commentData';
 import { NextRequest, NextResponse } from 'next/server';
 import { ulid } from 'ulid';
@@ -9,7 +9,7 @@ import { authOptions } from '@/lib/authoption';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get('postId');
-    console.log("getting comments")
+
   if (!postId) {
     return NextResponse.json({message: 'Error getting comments'}, { status: 404 });
   }

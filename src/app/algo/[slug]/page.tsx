@@ -1,4 +1,4 @@
-import { allPosts, Post } from 'contentlayer/generated'
+import { allPosts } from 'contentlayer/generated'
 import { notFound } from 'next/navigation'
 import PostPage from '@/components/postPage'
 import { Metadata } from 'next'
@@ -53,7 +53,9 @@ export default async function Page({params: {slug}}: {params: {slug: string}}) {
                         md:px-20 
                         ">
             <PostPage post={post} />
-            <Comments slug={slug}/>
+            <ErrorBoundary FallbackComponent={Fallback}>
+                <Comments slug={slug}/>
+            </ErrorBoundary>
         </div>
     )
 }
