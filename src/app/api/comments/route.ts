@@ -5,7 +5,7 @@ import { ulid } from 'ulid';
 import { generateCommentBlocks } from './../../../lib/comment/utils';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authoption';
-
+ 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get('postId');
