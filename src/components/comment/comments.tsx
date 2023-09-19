@@ -28,10 +28,10 @@ export default function Comments({slug}: {
     )
     
     return (
-        <section className="bg-white dark:bg-gray-900 antialiased mt-16">
+        <section className="bg-white antialiased mt-16">
             <div className=" mx-auto">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Comments</h2>
+                    <h2 className="text-lg lg:text-2xl font-bold text-gray-900 ">Comments</h2>
                 </div>
                 {commentForm("COMMENT#root")}
                 <Comment 
