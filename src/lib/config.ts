@@ -21,4 +21,5 @@ export const config = {
   GOOGLE_CLIENT_ID: is_valid('GOOGLE_CLIENT_ID'),
   GOOGLE_SECRET: is_valid('GOOGLE_SECRET'),
   ENVIRONMENT: is_valid('ENVIRONMENT'),
+  COMMENT_TABLENAME: is_valid('COMMENT_TABLENAME'),
 };

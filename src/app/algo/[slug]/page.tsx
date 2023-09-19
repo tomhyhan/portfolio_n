@@ -1,9 +1,12 @@
-import { allPosts, Post } from 'contentlayer/generated'
+import { allPosts } from 'contentlayer/generated'
 import { notFound } from 'next/navigation'
 import PostPage from '@/components/postPage'
 import { Metadata } from 'next'
 import { openGraphBasic } from '@/lib/shared-metadata'
 import { config } from '@/lib/config'
+import Comments from '@/components/comment/comments'
+import { ErrorBoundary } from 'react-error-boundary'
+import Fallback from '@/components/error/fallback'
 
 export const dynamic = config.ENVIRONMENT == "production" ? 'auto' : 'force-static'
 
@@ -50,6 +53,9 @@ export default async function Page({params: {slug}}: {params: {slug: string}}) {
                         md:px-20 
                         ">
             <PostPage post={post} />
+            <ErrorBoundary FallbackComponent={Fallback}>
+                <Comments slug={slug}/>
+            </ErrorBoundary>
         </div>
     )
 }

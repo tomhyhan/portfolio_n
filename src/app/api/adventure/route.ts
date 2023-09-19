@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const response = searchParams.get('commands')
     if (response == null) {
-        return NextResponse.json({ error: 'invalid Command' });
+        return NextResponse.json({ message: 'invalid Command' }, { status: 404 });
     }
     const commands = JSON.parse(response).commands;
 
@@ -25,13 +25,13 @@ export async function GET(request: NextRequest) {
     
         if (response.FunctionError) {
           console.error('Lambda function error:', response.FunctionError);
-          return NextResponse.json({ error: 'Lambda function error' });
+          return NextResponse.json({ message: 'Lambda function error' }, { status: 500 });
         } else {
           const payload = JSON.parse(new TextDecoder().decode(response.Payload));
           return NextResponse.json(payload.msg);
         }
       } catch (error) {
         console.error('Error invoking Lambda function:', error);
-        return NextResponse.json({ error: 'Internal server error' });
+        return NextResponse.json({ message: 'Internal server error' },{status: 500});
       }
 }

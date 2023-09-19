@@ -10,10 +10,10 @@ export async function GET(
     return NextResponse.json({ view: parseInt(view!) });
   } catch (err) {
     if (err instanceof Error) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
+      return NextResponse.json({ message: err.message }, { status: 500 });
     } else {
       return NextResponse.json(
-        { error: 'Internal Server Error' },
+        { message: 'Internal Server Error' },
         { status: 500 }
       );
     }
@@ -29,10 +29,10 @@ export async function POST(
     return NextResponse.json({ views });
   } catch (err) {
     if (err instanceof Error) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
+      return NextResponse.json({ message: err.message }, { status: 500 });
     } else {
       return NextResponse.json(
-        { error: 'Internal Server Error' },
+        { message: 'Internal Server Error' },
         { status: 500 }
       );
     }
