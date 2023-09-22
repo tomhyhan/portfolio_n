@@ -1,0 +1,267 @@
+---
+title: The Advent of C - AOC 2021 day 5
+slug: 'AOC-2020-day5'
+description: 'Solving the advent of code 2021 day 5 in C'
+publishedAt: '2023-09-22'
+status: 'solved'
+tags: 'pointer,cartesian'
+postTitle: 'Day 5: Hydrothermal Venture'
+category: 'algo'
+---
+
+Another AOC challenge! However, this time, I will be using C language to solve the problem. I just started to learn C, so the code might be a bit messy, but let's dive into it. The challenge can be found in [here] (https://adventofcode.com/2021/day/5)
+
+# Problem Description
+
+<Collapse>
+In part1, We are given a list of nearby lines of vents we need to avoid. The lines of vents are listed as a `pair of coordinates` e.g. : "(0,0)->(1,1)". We need to draw a `horizontal or vertiacal lines` from given points to avoid vents. After drawing all the lines, our goal is to find all the points that `overlaps`.
+
+In part2, now instead of drawing only horizontal or vertiacal lines, we can draw `diagonal lines` as well. Then, we need to find the number of points that `overlaps`.
+</Collapse>
+
+# Input
+
+<Collapse>
+### Sample Input:
+```text
+0,9 -> 5,9
+8,0 -> 0,8
+9,4 -> 3,4
+2,2 -> 2,1
+7,0 -> 7,4
+6,4 -> 2,0
+0,9 -> 2,9
+3,4 -> 1,4
+0,0 -> 8,8
+5,5 -> 8,2
+```
+
+Full `Input` can be found in [here](https://adventofcode.com/2021/day/5/input). You need to log in to get your input.
+</Collapse>
+
+# Solution
+
+## Part 1
+
+In part 1, I started by reading text input and saving the starting and end points of each line in a struct `coordinates`. 
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include "lib.h"
+#include "ptr_vector.h"
+
+struct Coord {
+    int x1;
+    int y1; 
+    int x2; 
+    int y2; 
+};
+
+int find_max(int max, int p1, int p2 );
+int draw_lines(PointVector *ptr_vector, int max_x, int max_y);
+void swap(int *p1, int *p2);
+void draw(struct Coord *ptr, int** surface);
+int **create_surface(int max_x, int max_y);
+
+int main(void) {
+    FILE *file = read_file_data("./inputs/q5.txt");
+    char line[100];
+    int x1, y1, x2, y2, max_x=0, max_y=0;
+    PointVector *ptr_vector = init_ptr_vector(100);
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (sscanf_s(line, "%d,%d -> %d,%d", &x1, &y1, &x2, &y2) == 4) {
+            struct Coord *coord = (struct Coord *)malloc(sizeof(struct Coord));
+            coord -> x1 = x1;
+            coord -> y1 = y1;
+            coord -> x2 = x2;
+            coord -> y2 = y2;
+            push(ptr_vector, coord);
+            max_x = find_max(max_x, x1, x2);
+            max_y = find_max(max_y, y1, y2);
+        }
+    } 
+
+    draw_lines(ptr_vector, max_x+1, max_y+1);
+
+    free_ptr_vector(ptr_vector);
+    fclose(file);
+    return 1;
+}
+```
+
+In the header, I included all the standard and custom library files I will using in the program. `lib.h` simply provides a function to read the file and handle errors. `ptr_vector.h` provides a dynamic array that excepts any type of `pointer`.
+
+Then, I read each line with `fgets` function and parse the string line with `sscanf_s` function to get each x1, y1, x2, y2 coordinates. Afterwards, I allocated memory for `Coord` struct and saved the struct's pointer to a `ptr_vector`. I also kept track of the maximum x and y to create a surface to draw the lines.
+
+Now, I passed the `ptr_vector` and the maximum x and y to `draw_lines` function to initialize the surface and draw the lines of vent. 
+
+```C
+int **create_surface(int max_x, int max_y) {
+    int i,j;
+    int **surface = (int **)malloc(sizeof(int* ) *max_y);
+    
+    for (i=0; i < max_y; i++) {
+        surface[i] = (int *)malloc(sizeof(int) *max_x);
+    }
+    
+    for (i=0;i<max_y;i++) {
+        for (j=0;j<max_x;j++) {
+            surface[i][j] = 0;
+        }
+    }
+    return surface;
+}
+
+int draw_lines(PointVector *ptr_vector, int max_x, int max_y) {
+    int **surface = create_surface(max_x, max_y);
+    int  i,j,overlaps = 0;
+    struct Coord *ptr;
+    printf("%d %d\n", max_x, max_y);
+
+    for (i=0; i< ptr_vector->size; i++) {
+        ptr = ptr_vector->array[i];
+        draw(ptr, surface);
+    }
+
+    for (i=0;i<max_y;i++) {
+        for (j=0;j<max_x;j++) {
+            if (surface[i][j]> 1) {
+                overlaps +=1;
+            }
+        }
+    }
+
+    printf("overlaps - %d", overlaps);
+
+    for (i=0; i < max_y; i++) {
+        free(surface[i]); 
+    }
+    free(surface);
+    return 1;
+}
+```
+The above code runs as follows:
+    1. Initialize the surface with `create_surface` function.
+    2. The `create_function` allocates memory for the surface with max x and y. Then, I sets all the values to 0.
+    3. For each `Coord struct pointer` in the `ptr_vector`, I drew the line with `draw` function.
+    4. Finally, I counted the number of points that overlaps and freed the memory.
+
+Now, the `draw` function looks at the start and end points and draws a line on the surface. 
+
+```C
+void draw(struct Coord *ptr, int** surface) {
+    int x1=ptr->x1;
+    int x2=ptr->x2;
+    int y1=ptr->y1; 
+    int y2=ptr->y2;
+    
+    if (x1 == x2) {
+        if (y1 > y2) {
+            swap(&y1,&y2);
+        }
+        while (y1 <= y2) {
+            surface[y1++][x1] += 1;
+        }
+    } else if (y1 == y2) {
+        if (x1 > x2) {
+            swap(&x1,&x2);
+        }
+        while (x1 <= x2) {
+            surface[y1][x1++] += 1;
+        }
+    }
+}
+
+void swap(int *p1, int *p2) {
+    int temp = *p1;
+    *p1 = *p2;
+    *p2 = temp;
+}
+```
+For convience, I saved each x and ys to a variable. If the x1 and x2 are the same, I made sure that y1 is always smaller than y2. Then, I drew a line from y1 to y2. Same logic applies when y1 and y2 are the same.
+
+After running the program, I got the following output:
+
+```text
+overlaps - 7436
+```
+
+## Part 2
+
+Part 2 is same as part 1, except I needed to draw the diagonal lines as well. I modified the `draw` function to draw the diagonal lines when both x and y points are different.
+
+```C
+void draw(struct Coord *ptr, int** surface) {
+    int x1=ptr->x1, x2=ptr->x2, y1=ptr->y1, y2=ptr->y2;
+
+    if (x1 == x2) {
+        if (y1 > y2) {
+            swap(&y1,&y2);
+        }
+        while (y1 <= y2) {
+            surface[y1++][x1] += 1;
+        }
+    } else if (y1 == y2) {
+        if (x1 > x2) {
+            swap(&x1,&x2);
+        }
+        while (x1 <= x2) {
+            surface[y1][x1++] += 1;
+        }
+    } else {
+        mark_surface(surface, x1, y1, x2, y2);
+    }
+}
+```
+
+To prevent the code from getting too messy, I created a new function `mark_surface` to draw the diagonal lines. The function takes the `surface` and x and y points.
+
+```C
+void mark_surface(int** surface, int x1, int y1, int x2, int y2) {
+    int y_larger = y1 < y2;
+    int x_larger = x1 < x2;
+    switch (y_larger*10 + x_larger) { 
+        case 11:            
+            while (x1 <= x2) {
+                surface[y1++][x1++] += 1;
+            }
+            break;
+        case 10:            
+            while (x1 >= x2) {
+                surface[y1++][x1--] += 1;
+            }
+            break;
+        case 0:            
+            while (x1 >= x2) {
+                surface[y1--][x1--] += 1;
+            }
+            break;        
+        case 1:            
+            while (x1 <= x2) {
+                surface[y1--][x1++] += 1;
+            }
+            break;        
+        default:
+            printf("invalid condition");
+            exit(1);
+    }
+}
+```
+
+The `mark_surface` compares the point(x1,y1) to the point(x2,y2). Imagine that the point(x1,y1) is at the center of the cartesian plane. The point(x2,y2) can be in one of the four quadrants. Since `true` return 1 and `false` return 0 in C, I used a switch statement to check the four conditions and draw the diagonal line accordingly.
+
+After running the program, I got the following output:
+
+```text
+overlaps - 21104
+```
+
+# Summary
+
+Writing a program in C let me appreciate the abstraction that other languages provide regarding syntax, memory management and data structure. For this problem, I had to allocate and deallocate memory for using pointers. I also had to manually create a dynamic array (vector). However, I enjoyed the process since it helped me to get better understanding of how the computer works. In the future posts, I will using C to solve more AOC problems.
+
+I hope you enjoyed this post. If you are interested, you might also have some fun with [AOC 2021 day 5](https://adventofcode.com/2021/day/5)
+
+The full code can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2021/q5.c)
