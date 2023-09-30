@@ -6,6 +6,7 @@ import Warning from './mdxhelper/warning'
 import Note from './mdxhelper/note'
 import Collapse from './mdxhelper/collapse';
 import Adventure from './mdxhelper/adventure';
+import PostImage from './mdxhelper/post-image';
 export default function MdxComponentWraper({code}: {
     code: string
 } ) {
@@ -16,6 +17,7 @@ export default function MdxComponentWraper({code}: {
     Warning,
     Note,
     Collapse,
-    Adventure
+    Adventure,
+    PostImage
     }}/>
 }

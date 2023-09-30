@@ -1,6 +1,6 @@
 ---
 title: The Advent of C - AOC 2021 day 5
-slug: 'AOC-2020-day5'
+slug: 'AOC-2021-day5'
 description: 'Solving the advent of code 2021 day 5 in C'
 publishedAt: '2023-09-22'
 status: 'solved'
@@ -9,7 +9,7 @@ postTitle: 'Day 5: Hydrothermal Venture'
 category: 'algo'
 ---
 
-Another AOC challenge! However, this time, I will be using C language to solve the problem. I just started to learn C, so the code might be a bit messy, but let's dive into it. The challenge can be found in [here] (https://adventofcode.com/2021/day/5)
+Another AOC challenge! However, this time, I will be using C language to solve the problem. I just started to learn C, so the code might be a bit messy, but let's dive into it. The challenge can be found in [here](https://adventofcode.com/2021/day/5)
 
 # Problem Description
 
@@ -45,7 +45,7 @@ Full `Input` can be found in [here](https://adventofcode.com/2021/day/5/input). 
 
 In part 1, I started by reading text input and saving the starting and end points of each line in a struct `coordinates`. 
 
-```C
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include "lib.h"
@@ -97,7 +97,7 @@ Then, I read each line with `fgets` function and parse the string line with `ssc
 
 Now, I passed the `ptr_vector` and the maximum x and y to `draw_lines` function to initialize the surface and draw the lines of vent. 
 
-```C
+```c
 int **create_surface(int max_x, int max_y) {
     int i,j;
     int **surface = (int **)malloc(sizeof(int* ) *max_y);
@@ -150,7 +150,7 @@ The above code runs as follows:
 
 Now, the `draw` function looks at the start and end points and draws a line on the surface. 
 
-```C
+```c
 void draw(struct Coord *ptr, int** surface) {
     int x1=ptr->x1;
     int x2=ptr->x2;
@@ -192,7 +192,7 @@ overlaps - 7436
 
 Part 2 is same as part 1, except I needed to draw the diagonal lines as well. I modified the `draw` function to draw the diagonal lines when both x and y points are different.
 
-```C
+```c
 void draw(struct Coord *ptr, int** surface) {
     int x1=ptr->x1, x2=ptr->x2, y1=ptr->y1, y2=ptr->y2;
 
@@ -218,7 +218,7 @@ void draw(struct Coord *ptr, int** surface) {
 
 To prevent the code from getting too messy, I created a new function `mark_surface` to draw the diagonal lines. The function takes the `surface` and x and y points.
 
-```C
+```c
 void mark_surface(int** surface, int x1, int y1, int x2, int y2) {
     int y_larger = y1 < y2;
     int x_larger = x1 < x2;

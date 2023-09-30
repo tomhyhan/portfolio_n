@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { CommentBody, CommentList, DenamoComment } from './Type'
+import { CommentBody } from './Type'
 import useSWR from 'swr';
 import fetchWrapper from './http/fetch-wrapper';
-import { delay } from './comment/utils';
 
 async function getComments(url: string) {
     const response = await fetch(url);
@@ -68,7 +67,6 @@ export default function UseComment(postId: string) {
             setNetworkError(error)
         }
 
-        // setIsNew(commentId)
         isNew.current = commentId
         editCommentRef.current = null
         setIsEditing(null)

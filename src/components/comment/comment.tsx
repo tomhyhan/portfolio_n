@@ -1,5 +1,4 @@
 import { CommentController } from '@/lib/Type'
-import React, { memo, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { Disclosure } from '@headlessui/react'
 import CommentDetail from './comment-body';

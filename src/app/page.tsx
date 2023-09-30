@@ -8,7 +8,7 @@ export default function Home({}) {
     <main className={`${sourceCodePro.className} min-h-screen `}>
       <div className="w-full sm:w-1/2 h-[30rem] flex flex-col justify-center items-start mx-auto">
         <h1 className="mb-5 text-5xl font-bold text-neutral-200">Hello, I am Tom</h1>  
-        <p className="mb-5 text-2xl text-neutral-300">I like building things and solving problems</p>
+        <p className="mb-5 text-2xl text-neutral-300">I Love building things and solving problems. Continuously challenging myself with new tasks to learn and grow</p>
         <p className="mb-5 text-slate-500">BCIT graduate, Currently working as a Full Stack Developer</p>
         <Link href="/#aboutme"
         className="rounded-md px-2 py-1 

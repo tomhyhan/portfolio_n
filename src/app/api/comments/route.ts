@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
   };
   try {
     const commentData : DenamoComment = await postComments(comment);
-    commentData.new = true;
     return NextResponse.json(commentData, { status: 200 });
   } catch {
     return NextResponse.json({message: "Error posting comment"}, { status: 500 });
