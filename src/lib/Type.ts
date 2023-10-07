@@ -40,7 +40,6 @@ export type DenamoComment = {
   pk: { S: string };
   GSI1SK: { S: string };
   deleted: { BOOL: boolean };
-  new?: boolean
 };
 
 export type CommentController = {
