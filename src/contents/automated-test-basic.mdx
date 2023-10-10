@@ -11,9 +11,9 @@ category: 'dev'
 
 Test is an essention part of a development life cycle. It ensures that our software works as we expected, and gives us the confidence we can build and improve our software without worrying about breaking the existing features.
 
-In fact, we do tests all the time while developing. Let's say for example we are building an UI for our application. How do you check if the UI is working as expected? You open the browser and check out if the button is positioned correctly, if the color is right, if the text is correct, etc. 
+In fact, we do tests all the time while developing. Let's say for example we are building an UI for our application. How do you check if the UI is working as expected? You open the browser and check out if the button is positioned correctly, if the color is right, if the text is correct, etc.
 
-However, while manual testing is a great way to start at first, as our application grows, it becomes cumbersome to test our application manually every time we make changes. This is where automated test comes in. 
+However, while manual testing is a great way to start at first, as our application grows, it becomes cumbersome to test our application manually every time we make changes. This is where automated test comes in.
 
 The automated test helps us to automate the manual testing processes, so that we don't have to test our application manually every time we make changes. Indeed, well written automated test can save us a lot of time and effort in the long run.
 
@@ -29,7 +29,7 @@ To write good tests, it is good to keep in mind the following principles and gui
 
 `First` Principles:
 
-Fast - Project can include hundreds, if not thousands, of unit tests. Tests should be fast and reduce the dependencies on slow factors, such as quering databases or networks connection. 
+Fast - Project can include hundreds, if not thousands, of unit tests. Tests should be fast and reduce the dependencies on slow factors, such as quering databases or networks connection.
 
 Isolated - Unit tests are truely isolated from one another. If one test fails, we know exactly where to fix it.
 
@@ -37,18 +37,18 @@ Repeatable: Tests should not be flaky. Every time we run the test, it should yei
 
 Self-Checking: We should not check the test result manually. The test should automatically give us if the test passes or fails. (e.g. using `assert`)
 
-Timely: Test should be written at the right time. It should not be written after the deployment, or it should not take more time to write the test than the actual code. 
+Timely: Test should be written at the right time. It should not be written after the deployment, or it should not take more time to write the test than the actual code.
 
-`RIGHT BICEP` guidelines (testing areas): 
+`RIGHT BICEP` guidelines (testing areas):
 
-Right   - are the test results right?
-B       - are all the boundary conditions CORRECT? Check the edge cases. Check the range of values (null, overflow, underflow, special characters ... ).
-I       - can you check inverse relationships? If you add 1, can you subtract 1 to get back to where you started?
-C       - can you cross-check results using other means?
-E       - can you force error conditions to happen?
-P       - are performance characteristics within bounds?
+Right - are the test results right?
+B - are all the boundary conditions CORRECT? Check the edge cases. Check the range of values (null, overflow, underflow, special characters ... ).
+I - can you check inverse relationships? If you add 1, can you subtract 1 to get back to where you started?
+C - can you cross-check results using other means?
+E - can you force error conditions to happen?
+P - are performance characteristics within bounds?
 
-Check out these `References` for more detailed explanation: 
+Check out these `References` for more detailed explanation:
 
     1. https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices
     2. https://qarambling.wordpress.com/2014/04/27/unit-testing-101-concepts-the-right-bicep/
@@ -59,7 +59,7 @@ For this post, we are goint to use `Jest` which includes both `test runner` and 
 
 # Basic Test
 
-To start, we are going to create a `reversed polish notation caculator` to get ourselves familiar with `Jest` features. 
+To start, we are going to create a `reversed polish notation caculator` to get ourselves familiar with `Jest` features.
 
 ## Creata a project with jest
 
@@ -77,27 +77,28 @@ Let's start with basic arithmatic operations. Then, we will use `Jest Matchers` 
 create a file `utils.js` and add the following code:
 
 ```javascript
-function add(x,y) {
-    return x+y
+function add(x, y) {
+  return x + y;
 }
 
-function sub(x,y) {
-    return x-y
+function sub(x, y) {
+  return x - y;
 }
 
-function mul(x,y) {
-    return x*y
+function mul(x, y) {
+  return x * y;
 }
 
-function div(x,y) {
-    if (y == 0) {
-        throw new Error("Can not divide by 0")
-    }
-    return x / y
+function div(x, y) {
+  if (y == 0) {
+    throw new Error('Can not divide by 0');
+  }
+  return x / y;
 }
 
-module.exports = {add, sub, div, mul}
+module.exports = { add, sub, div, mul };
 ```
+
 We have four functions: `add`, `sub`, `mul`, `div`. One thing to note is that the `div` function throw error if we try to divide with 0.
 
 ## Test the utility functions
@@ -105,33 +106,34 @@ We have four functions: `add`, `sub`, `mul`, `div`. One thing to note is that th
 Next, create a `test` folder and inside, create a file `utils.test.js`.
 
 ```javascript
-const {add, mul, sub,div} = require('../utils');
+const { add, mul, sub, div } = require('../utils');
 
-describe("utility functions for creating calculator", () => {
-    test("3 + 5 is 8", () => {
-        expect(add(3,5)).toBe(8)
-    })
-    
-    test("3 - 5 is -2", () => {
-        expect(sub(3,5)).toBe(-2)
-    })
-    
-    test("3 * 5 is 15", () => {
-        expect(mul(3,5)).toBe(15)
-    })
+describe('utility functions for creating calculator', () => {
+  test('3 + 5 is 8', () => {
+    expect(add(3, 5)).toBe(8);
+  });
 
-    test("3 / 5 is 0.6", () => {
-        expect(div(3,5)).toBeCloseTo(0.6)
-    })
+  test('3 - 5 is -2', () => {
+    expect(sub(3, 5)).toBe(-2);
+  });
 
-    test("3 / 0 to thorw an error", () => {
-        expect(() => {
-            div(3,0)
-        }).toThrow("Can not divide by 0")
-    })
-}) 
+  test('3 * 5 is 15', () => {
+    expect(mul(3, 5)).toBe(15);
+  });
+
+  test('3 / 5 is 0.6', () => {
+    expect(div(3, 5)).toBeCloseTo(0.6);
+  });
+
+  test('3 / 0 to thorw an error', () => {
+    expect(() => {
+      div(3, 0);
+    }).toThrow('Can not divide by 0');
+  });
+});
 ```
-It the above code, we first import all the utility functions from `utils.js`. The `describe` function is a test block that gathers all the related tests. Then, we used `test` method to test the individual functions. 
+
+It the above code, we first import all the utility functions from `utils.js`. The `describe` function is a test block that gathers all the related tests. Then, we used `test` method to test the individual functions.
 
 Tests should be straightforward except two things. First, when we are dealing with a floating point number, we should use `toBeCloseTo` instead of `toBe` to avoid rounding error. Second, when we are testing if `div` throws an error, we should use a callback function inside `expect`.
 
@@ -152,92 +154,97 @@ Tests:       5 passed, 5 total
 Snapshots:   0 total
 Time:        0.511 s, estimated 1 s
 ```
+
 Tests passed!
 
 ## Creating calculator
 
 Now, let's create a simple caculator using the utility functions we just created.
 
-The reversed polish notion is a different way of looking at the arithmatic operations. So, instead of writing "1 + 2 * 3", we write "1 2 3 * +". The advantage is that we don't need to worry about the order of operations and parenthesis. We could simple read from `left to right`. [wiki](https://en.wikipedia.org/wiki/Reverse_Polish_notation) for more detail.
+The reversed polish notion is a different way of looking at the arithmatic operations. So, instead of writing "1 + 2 _ 3", we write "1 2 3 _ +". The advantage is that we don't need to worry about the order of operations and parenthesis. We could simple read from `left to right`. [wiki](https://en.wikipedia.org/wiki/Reverse_Polish_notation) for more detail.
 
 Create a file `calc.js` and add the following code:
 
 ```javascript
-const {add,sub,div,mul} = require("./utils.js")
+const { add, sub, div, mul } = require('./utils.js');
 
 const MATH_OPERATIONS = {
-    "+": add,
-    "-": sub,
-    "*": mul,
-    "/": div,
-}
+  '+': add,
+  '-': sub,
+  '*': mul,
+  '/': div,
+};
 
 function tokenize(expression) {
-    if (!(/^[0-9+\-*/\s()]+$/).test(expression)) {
-        throw new Error("not a valid expression")
-    }
+  if (!/^[0-9+\-*/\s()]+$/.test(expression)) {
+    throw new Error('not a valid expression');
+  }
 
-    const split_expression = expression.split(" ")
-    const stack = []
-    const tokens = []
-    for (const token of split_expression) {
-        if (!isNaN(token)) {
-            tokens.push(token)
-        } else {
-            switch (token) {
-                case "+":
-                case "-":
-                    while (stack.length != 0 && ["*", "%"].includes(stack[stack.length - 1])) {
-                        const take_presidence = stack.pop() 
-                        tokens.push(take_presidence)    
-                    }
-                    stack.push(token)
-                    break
-                case "*":
-                case "/":
-                case "(":
-                    stack.push(token)
-                    break
-                case ")":
-                    let current = stack.pop()
-                    while (stack.length != 0 && current != "(") {
-                        tokens.push(current)
-                        current = stack.pop()
-                    }
-                    break
-                default:
-                    throw new Error("not a valid token!")
-            }
-        }
+  const split_expression = expression.split(' ');
+  const stack = [];
+  const tokens = [];
+  for (const token of split_expression) {
+    if (!isNaN(token)) {
+      tokens.push(token);
+    } else {
+      switch (token) {
+        case '+':
+        case '-':
+          while (
+            stack.length != 0 &&
+            ['*', '%'].includes(stack[stack.length - 1])
+          ) {
+            const take_presidence = stack.pop();
+            tokens.push(take_presidence);
+          }
+          stack.push(token);
+          break;
+        case '*':
+        case '/':
+        case '(':
+          stack.push(token);
+          break;
+        case ')':
+          let current = stack.pop();
+          while (stack.length != 0 && current != '(') {
+            tokens.push(current);
+            current = stack.pop();
+          }
+          break;
+        default:
+          throw new Error('not a valid token!');
+      }
     }
-    while (stack.length != 0) {
-        tokens.push(stack.pop())
-    }
-    return tokens
+  }
+  while (stack.length != 0) {
+    tokens.push(stack.pop());
+  }
+  return tokens;
 }
 
 function evaluate(tokens) {
-    const stack = []
-    for (const token of tokens) {
-        if (!isNaN(token)) {
-            stack.push(token)
-        } else {
-            const y = parseInt(stack.pop())
-            const x = parseInt(stack.pop())
-            const result = MATH_OPERATIONS[token](x,y)
-            stack.push(result)
-        }
+  const stack = [];
+  for (const token of tokens) {
+    if (!isNaN(token)) {
+      stack.push(token);
+    } else {
+      const y = parseInt(stack.pop());
+      const x = parseInt(stack.pop());
+      const result = MATH_OPERATIONS[token](x, y);
+      stack.push(result);
     }
-    return stack[0]
+  }
+  return stack[0];
 }
 
 function calculator(expression) {
-    const tokens = tokenize(expression)
-    return evaluate(tokens)
+  const tokens = tokenize(expression);
+  return evaluate(tokens);
 }
 
-module.exports = {calculator, evaluate, tokenize}
+module.exports = { calculator, evaluate, tokenize };
 ```
+
 We start by importing the arithmatic functions. Then, the above code can be explained as follows:
 
     1. MATH_OPERATIONS: An object that maps the operator to the corresponding function.
@@ -250,44 +257,47 @@ We start by importing the arithmatic functions. Then, the above code can be expl
 Next, create a file `calc.test.js` inside test folder. Since there are three functions in `calc.js`, we are going to create three test blocks.
 
 ```javascript
-const {calculator, evaluate, tokenize} = require("../calc")
+const { calculator, evaluate, tokenize } = require('../calc');
 
-describe("tokenize", () => {
-    test("throw error if expression is invalid", () => {
-        expect(() => {
-            tokenize("1 + 2 & 5 ")
-        }).toThrow("not a valid expression")
-    })
+describe('tokenize', () => {
+  test('throw error if expression is invalid', () => {
+    expect(() => {
+      tokenize('1 + 2 & 5 ');
+    }).toThrow('not a valid expression');
+  });
 
-    test("throw error if no space between expression tokens", () => {
-        expect(() => {
-            tokenize("(1 + 2) * 5 ")
-        }).toThrow("not a valid token!")
-    })
+  test('throw error if no space between expression tokens', () => {
+    expect(() => {
+      tokenize('(1 + 2) * 5 ');
+    }).toThrow('not a valid token!');
+  });
 
-    test("1 + 2 * 5 correctly tokenize to ['1','2','5','*','+']" ,() => {
-        expect(tokenize("1 + 2 * 5")).toStrictEqual(['1','2','5','*','+'])
-    })
-})
+  test("1 + 2 * 5 correctly tokenize to ['1','2','5','*','+']", () => {
+    expect(tokenize('1 + 2 * 5')).toStrictEqual(['1', '2', '5', '*', '+']);
+  });
+});
 ```
+
 First, we import the necessary functions and create a test block for `tokenize` function. The first test checks if the expression (our parameter) contains any character other than numbers, operators, parenthesis, and spaces. The second test checks if there is a space between expression tokens. The third test checks if the expression is correctly converted to tokens.
 
-```javascript 
-describe("evaluate", () => {
-    test("['1','2','5','*','+'] evaluated to 11",()=> {
-        expect(evaluate(['1','2','5','*','+'])).toBe(11)
-    })
-})
+```javascript
+describe('evaluate', () => {
+  test("['1','2','5','*','+'] evaluated to 11", () => {
+    expect(evaluate(['1', '2', '5', '*', '+'])).toBe(11);
+  });
+});
 ```
+
 The `evaludate` test block checks if the tokens are correctly evaluated to the result.
 
 ```javascript
-describe("calculator", () => {
-    test("( 1 + 2 ) * ( 3 * ( 4 + 5 ) ) calculates to 81",() => {
-        expect(calculator("( 1 + 2 ) * ( 3 * ( 4 + 5 ) )")).toBe(81)
-    })
-})
+describe('calculator', () => {
+  test('( 1 + 2 ) * ( 3 * ( 4 + 5 ) ) calculates to 81', () => {
+    expect(calculator('( 1 + 2 ) * ( 3 * ( 4 + 5 ) )')).toBe(81);
+  });
+});
 ```
+
 Lastly, the `calculator function` test block checks if the expression is correctly caculated to the result.
 
 ## Run the test
@@ -310,22 +320,161 @@ Tests:       5 passed, 5 total
 Snapshots:   0 total
 Time:        0.734 s, estimated 1 s
 ```
+
 All the tests passed!
 
 # Dependency test in Jest
 
-With the caculator project, we have familiarized ourselves with `Matchers` in `Jest`. Now, let's create another projects to learn about how we can seperate the dependencies in our tests. 
+With the caculator project, we have familiarized ourselves with `Matchers` in `Jest`. Now, let's create another projects to learn about how we can isolate our tests by seperating the dependencies.
 
 ## Mock
 
 In `Jest`, mock functions can be used in place of the actual functions or modules. It allows us to test the code in isolation without worrying about the implementation details of the dependencies.
 
-# Creating a project
+## Creating Music Service
 
-This time, we are going to create a service
+This time, we are going to create a Music service that fetches the music data from the server. Create a `mock` folder and inside, create a file `MusicService.js` and `MusicClient.js`
+
+```javascript
+class MusicClient {
+  async get() {
+    const data = await fetch('https://music/myfavorite');
+    return await data.json();
+  }
+}
+module.exports = MusicClient;
+```
+
+```javascript
+class MusicClient {
+  async get() {
+    const data = await fetch('https://music/myfavorite');
+    return await data.json();
+  }
+}
+module.exports = MusicClient;
+```
+
+The `MusicClient` class make a request to a fake server and returns favorite music data.
+
+```javascript
+class MusicService {
+  constructor(client) {
+    this.client = client;
+    this.favoriteMusic = null;
+  }
+
+  async getFavoriteMusic() {
+    if (this.favoriteMusic === null) {
+      this.favoriteMusic = await this.client.get();
+    }
+  }
+}
+
+module.exports = MusicService;
+```
+
+The `MusicService` class takes a `MusicClient` as a dependency and fetches the favorite music data from the server. The `getFavoriteMusic` method fetches the data once and caches it. The subsequent calls to the method will return the cached data instead of making a request to the server.
+
+Note that we have seperated the api request and the business logic, so that we can test the business logic without worrying about the api request.
+
+## Implementing the test with Mock
+
+Now, create a `test` folder inside the `mock` folder and create a file `MusicService.test.js`.
+
+```javascript
+const MusicClient = require('../MusicClient');
+const MusicService = require('../MusicService');
+
+jest.mock('../MusicClient.js');
+
+describe('MusicService', () => {
+  const get = jest.fn(() => ['song1', 'song2']);
+  MusicClient.mockImplementation(() => ({
+    get,
+  }));
+  let musicService;
+  beforeEach(() => {
+    musicService = new MusicService(new MusicClient());
+  });
+
+  afterEach(() => {
+    get.mockClear();
+    MusicClient.mockClear();
+  });
+
+  test('fetching favorite music', async () => {
+    await musicService.getFavoriteMusic();
+
+    expect(musicService.favoriteMusic).toStrictEqual(['song1', 'song2']);
+  });
+
+  test('calls get() only once after caching favorite music', async () => {
+    await musicService.getFavoriteMusic();
+    await musicService.getFavoriteMusic();
+
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+The above test runs as follows:
+
+    1. Import the `MusicClient` and `MusicService` classes.
+    2. Mock the `MusicClient` class with `Jest` mock.
+    3. Mock a `get` function since the `MusicService` class depends on the `get` function.
+    4. Implement the `MusicClient` class with mock `get` function.
+    5. Before each test, create a new instance of `MusicService` class.
+    6. In the first test, call the `getFavoriteMusic` method and check if the result of the mock `get` function matches with the `favoriteMusic`.
+    7. In the second test, call the `getFavoriteMusic` method twice and check if the mock `get` function is called only once.
+    8. After each test, make sure to clear the mock functions.
+
+## Run the test
+
+Run `npm run test -- --testPathPattern=./mock/test` and we should see the following output:
 
 ```bash
+  MusicService
+    √ fetching favorite music (4 ms)
+    √ calls get() only once after fetching favorite music (1 ms)
 
-Create a `dependencies` folder and inside, create another folder `mock`.
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.553 s, estimated 2
+```
 
+## Stub
 
+Stub is a dummy/fake object that can be used in place of an actual object (dependency). Since we controll the behavior of the stub, we can use it simplify our tests.
+
+## Creating a Music Service with Stub
+
+We are going to create a similar Music Service as previous section, but this time, we are going to use a stub instead of a mock.
+
+Create a `stub` folder and inside, create a file `MusicService.js` and `MusicClient.js`
+
+```javascript
+class MusicClient {
+  async get() {
+    const data = await fetch('https://music/myfavorite');
+    return await data.json();
+  }
+}
+
+module.exports = MusicClient;
+```
+
+```javascript
+class MusicService {
+  constructor(client) {
+    this.client = client;
+  }
+
+  async getFavoriteMusic() {
+    return await this.client.get();
+  }
+}
+
+module.exports = MusicService;
+```
