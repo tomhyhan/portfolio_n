@@ -2,22 +2,22 @@
 title: Automated Test - Basic
 slug: 'automated-test-basic'
 description: 'Understanding automated test'
-publishedAt: '2023-10-07'
+publishedAt: '2023-10-09'
 status: 'published'
 tags: 'test,basic,jest'
 postTitle: 'Automated Test - Basic'
 category: 'dev'
 ---
 
-Test is an essention part of a development life cycle. It ensures that our software works as we expected, and gives us the confidence we can build and improve our software without worrying about breaking the existing features.
+Testing is an essential part of the development life cycle. It ensures that our application works as expected, giving us the confidence to build and improve our software without worrying about breaking existing features.
 
-In fact, we do tests all the time while developing. Let's say for example we are building an UI for our application. How do you check if the UI is working as expected? You open the browser and check out if the button is positioned correctly, if the color is right, if the text is correct, etc.
+In fact, we conduct tests all the time during development. For example, let's consider building a UI for our application. How do you ensure if the UI is functioning as expected? You open the browser and check whether the button is positioned correctly, if the color is right, if the text is accurate, and so on.
 
-However, while manual testing is a great way to start at first, as our application grows, it becomes cumbersome to test our application manually every time we make changes. This is where automated test comes in.
+Initially, manual testing is a good starting point. However, as our application grows, it becomes impractical to test it manually every time we make changes. This is where automated testing comes in.
 
-The automated test helps us to automate the manual testing processes, so that we don't have to test our application manually every time we make changes. Indeed, well written automated test can save us a lot of time and effort in the long run.
+Automated tests allow us to automate manual testing processes, eliminating the need to test our application manually with every change. Well-written automated tests can save us a significant amount of time and effort in the long run.
 
-In the post, we are going to dive into creating automated test in several different steps:
+In this series, we are going to dive into creating automated tests in several different steps:
 
     1. basic test
     2. Frontend test
@@ -25,19 +25,19 @@ In the post, we are going to dive into creating automated test in several differ
 
 # Testing Principles && Guidelines
 
-To write good tests, it is good to keep in mind the following principles and guidelines, so that we can `focus` on writing tests that matters and `avoid` writing tests that are not useful.
+To write good tests, it is essential to keep in mind the following principles and guidelines. This approach allows us to focus on writing tests that matter and avoid creating tests that are not useful.
 
 `First` Principles:
 
-Fast - Project can include hundreds, if not thousands, of unit tests. Tests should be fast and reduce the dependencies on slow factors, such as quering databases or networks connection.
+Fast - Projects can include hundreds, if not thousands, of unit tests. Tests should be fast and reduce dependencies on slow factors, such as querying databases or network connections.
 
-Isolated - Unit tests are truely isolated from one another. If one test fails, we know exactly where to fix it.
+Isolated - Unit tests are truly isolated from one another. If one test fails, we know exactly where to fix it.
 
-Repeatable: Tests should not be flaky. Every time we run the test, it should yeild the same result.
+Repeatable: Tests should not be flaky. Every time we run the test, it should yield the same result.
 
-Self-Checking: We should not check the test result manually. The test should automatically give us if the test passes or fails. (e.g. using `assert`)
+Self-Checking: We should not check the test result manually. The test should automatically inform us if it passes or fails (e.g., using assert).
 
-Timely: Test should be written at the right time. It should not be written after the deployment, or it should not take more time to write the test than the actual code.
+Timely: Tests should be written at the right time. They should not be written after deployment, nor should they take more time to write than the actual code.
 
 `RIGHT BICEP` guidelines (testing areas):
 
@@ -55,11 +55,11 @@ Check out these `References` for more detailed explanation:
 
 # Tools
 
-For this post, we are goint to use `Jest` which includes both `test runner` and `assertion library`. It is popular JavaScript test framework that is easy to use and has rich features.
+For this post, we are going to use `Jest`, which includes both a test runner and an assertion library. It is a popular JavaScript test framework that is easy to use and has rich features.
 
 # Basic Test
 
-To start, we are going to create a `reversed polish notation caculator` to get ourselves familiar with `Jest` features.
+To start, we are going to create a reversed polish notation calculator to familiarize ourselves with Jest features.
 
 ## Creata a project with jest
 
@@ -72,7 +72,7 @@ npm install --save-dev jest
 
 ## Create arithmatic functions
 
-Let's start with basic arithmatic operations. Then, we will use `Jest Matchers` to validate the result.
+Let's start with basic arithmetic operations. Then, we will use `Jest Matchers` to validate the results.
 
 create a file `utils.js` and add the following code:
 
@@ -99,7 +99,7 @@ function div(x, y) {
 module.exports = { add, sub, div, mul };
 ```
 
-We have four functions: `add`, `sub`, `mul`, `div`. One thing to note is that the `div` function throw error if we try to divide with 0.
+We have four functions: add, sub, mul, div. It's important to note that the div function throws an error if we attempt to divide by 0.
 
 ## Test the utility functions
 
@@ -133,9 +133,9 @@ describe('utility functions for creating calculator', () => {
 });
 ```
 
-It the above code, we first import all the utility functions from `utils.js`. The `describe` function is a test block that gathers all the related tests. Then, we used `test` method to test the individual functions.
+In the above code, we first import all the utility functions from utils.js. The describe function creates a test suite that gathers all related tests. We use the test method to individually test each function
 
-Tests should be straightforward except two things. First, when we are dealing with a floating point number, we should use `toBeCloseTo` instead of `toBe` to avoid rounding error. Second, when we are testing if `div` throws an error, we should use a callback function inside `expect`.
+Tests should be straightforward, but there are two exceptions. First, when dealing with floating-point numbers, we should use `toBeCloseTo` instead of `toBe` to avoid rounding errors. Second, when testing if div throws an error, we should use a `callback` function inside `expect`."
 
 ## Run the test
 
@@ -155,13 +155,11 @@ Snapshots:   0 total
 Time:        0.511 s, estimated 1 s
 ```
 
-Tests passed!
-
 ## Creating calculator
 
-Now, let's create a simple caculator using the utility functions we just created.
+Now, let's create a simple calculator using the utility functions we just created.
 
-The reversed polish notion is a different way of looking at the arithmatic operations. So, instead of writing "1 + 2 _ 3", we write "1 2 3 _ +". The advantage is that we don't need to worry about the order of operations and parenthesis. We could simple read from `left to right`. [wiki](https://en.wikipedia.org/wiki/Reverse_Polish_notation) for more detail.
+Reverse Polish Notation (RPN) is a different way of representing arithmetic operations. Instead of writing '1 + 2 _ 3', we write '1 2 3 _ +'. The advantage is that we don't need to worry about the order of operations and parentheses. We can simply read from left to right. [wiki](https://en.wikipedia.org/wiki/Reverse_Polish_notation) for more detail.
 
 Create a file `calc.js` and add the following code:
 
@@ -245,12 +243,12 @@ function calculator(expression) {
 module.exports = { calculator, evaluate, tokenize };
 ```
 
-We start by importing the arithmatic functions. Then, the above code can be explained as follows:
+We start by importing the arithmetic functions. Then, the above code can be explained as follows:
 
     1. MATH_OPERATIONS: An object that maps the operator to the corresponding function.
-    2. tokenize: Converts the expression into a `reversed polish notation` tokens. e.g. "1 + 2 * 3" => ["1", "2", "3", "*", "+"]. The expression only contains numbers, operators, parenthesis, and spaces. Also there must be a space between each token.
-    3. evaluate: Performs arithmatic operations on the tokens and returns the result.
-    4. calculator: Function that takes an expression as a parameter and returns the result.
+    2. tokenize: Converts the expression into a 'reverse Polish notation' tokens, for example, '1 + 2 * 3' => ['1', '2', '3', '*', '+']. The expression only contains numbers, operators, parentheses, and spaces. Also, there must be a space between each token.
+    3. evaluate: Performs arithmetic operations on the tokens and returns the result.
+    4. calculator: A function that takes an expression as a parameter and returns the result.
 
 ## Test the calculator
 
@@ -278,7 +276,7 @@ describe('tokenize', () => {
 });
 ```
 
-First, we import the necessary functions and create a test block for `tokenize` function. The first test checks if the expression (our parameter) contains any character other than numbers, operators, parenthesis, and spaces. The second test checks if there is a space between expression tokens. The third test checks if the expression is correctly converted to tokens.
+First, we import the necessary functions and create a test block for the tokenize function. The first test checks if the expression (our parameter) contains any characters other than numbers, operators, parentheses, and spaces. The second test verifies if there is a space between expression tokens. The third test ensures that the expression is correctly converted into tokens
 
 ```javascript
 describe('evaluate', () => {
@@ -298,7 +296,7 @@ describe('calculator', () => {
 });
 ```
 
-Lastly, the `calculator function` test block checks if the expression is correctly caculated to the result.
+Lastly, the `calculator` function test block checks if the expression is correctly calculated to the result.
 
 ## Run the test
 
@@ -321,11 +319,9 @@ Snapshots:   0 total
 Time:        0.734 s, estimated 1 s
 ```
 
-All the tests passed!
-
 # Dependency test in Jest
 
-With the caculator project, we have familiarized ourselves with `Matchers` in `Jest`. Now, let's create another projects to learn about how we can isolate our tests by seperating the dependencies.
+With the calculator project, we have familiarized ourselves with `Matchers` in `Jest`. Now, let's create another project to learn how we can isolate our tests by separating the dependencies.
 
 ## Mock
 
@@ -333,7 +329,7 @@ In `Jest`, mock functions can be used in place of the actual functions or module
 
 ## Creating Music Service
 
-This time, we are going to create a Music service that fetches the music data from the server. Create a `mock` folder and inside, create a file `MusicService.js` and `MusicClient.js`
+This time, we are going to create a Music service that fetches the music data from the server. Create a `mock` folder and inside, create files `MusicService.js` and `MusicClient.js`
 
 ```javascript
 class MusicClient {
@@ -374,9 +370,9 @@ class MusicService {
 module.exports = MusicService;
 ```
 
-The `MusicService` class takes a `MusicClient` as a dependency and fetches the favorite music data from the server. The `getFavoriteMusic` method fetches the data once and caches it. The subsequent calls to the method will return the cached data instead of making a request to the server.
+The `MusicService` class takes a `MusicClient` as a dependency and fetches favorite music data from the server. The getFavoriteMusic method fetches the data once and caches it. Subsequent calls to the method will return the cached data instead of making a request to the server.
 
-Note that we have seperated the api request and the business logic, so that we can test the business logic without worrying about the api request.
+Note that we have separated the API request and the business logic so that we can test the business logic without worrying about the API request.
 
 ## Implementing the test with Mock
 
@@ -418,16 +414,16 @@ describe('MusicService', () => {
 });
 ```
 
-The above test runs as follows:
+In the test above, we:
 
     1. Import the `MusicClient` and `MusicService` classes.
     2. Mock the `MusicClient` class with `Jest` mock.
-    3. Mock a `get` function since the `MusicService` class depends on the `get` function.
+    3. Mock a `get` function since the `MusicService` class depends on the it.
     4. Implement the `MusicClient` class with mock `get` function.
-    5. Before each test, create a new instance of `MusicService` class.
-    6. In the first test, call the `getFavoriteMusic` method and check if the result of the mock `get` function matches with the `favoriteMusic`.
-    7. In the second test, call the `getFavoriteMusic` method twice and check if the mock `get` function is called only once.
-    8. After each test, make sure to clear the mock functions.
+    5. Before each test, create a new instance of the `MusicService` class.
+    6. In the first test, call the `getFavoriteMusic` method. Then, check if the result of the mock `get` function matches the expected `favoriteMusic`.
+    7. In the second test, call the `getFavoriteMusic` method twice. Then, verify that the mock get function is called only once
+    8. After each test, ensure to clear the mock functions to maintain a clean testing environment
 
 ## Run the test
 
@@ -446,7 +442,7 @@ Time:        0.553 s, estimated 2
 
 ## Stub
 
-Stub is a dummy/fake object that can be used in place of an actual object (dependency). Since we controll the behavior of the stub, we can use it simplify our tests.
+Stub is a dummy/fake object that can be used in place of an actual object (dependency). Since we control the behavior of the stub, we can use it simplify our tests. Let's take a look at an example.
 
 ## Creating a Music Service with Stub
 
@@ -463,9 +459,7 @@ class MusicClient {
 }
 
 module.exports = MusicClient;
-```
 
-```javascript
 class MusicService {
   constructor(client) {
     this.client = client;
@@ -478,3 +472,64 @@ class MusicService {
 
 module.exports = MusicService;
 ```
+
+The `MusicClient` is same as before. The `MusicService` class simply returns favorite music data instead of saving to a property.
+
+## Implementing the test with Stub
+
+Create a `test` folder inside the `stub` folder and create a file `MusicService.test.js` and `MusicClientStub.js`.
+
+```javascript
+class MusicClientStub {
+  async get() {
+    return ['song1', 'song2'];
+  }
+}
+
+module.exports = MusicClientStub;
+```
+
+The `MusicClientStub` dummy class returns a favorite music data instead of making a request to the server.
+
+```javascript
+const MusicService = require('../MusicService');
+const MusicClientStub = require('./MusicClientStub');
+
+describe('MusicService', () => {
+  let musicService;
+  beforeEach(() => {
+    musicService = new MusicService(new MusicClientStub());
+  });
+  test('fetching favorite music', async () => {
+    const favoriteMusic = await musicService.getFavoriteMusic();
+
+    expect(favoriteMusic).toStrictEqual(['song1', 'song2']);
+  });
+});
+```
+
+Our test with `stub` is much simpler than the test with `mock`. We simply passed a `MusicClientStub` to the `MusicService` constructor and called the `getFavoriteMusic` method.
+
+## Run the test
+
+Run `npm run test -- --testPathPattern=./stub/test` and we should see the following output:
+
+```bash
+  MusicService
+    √ fetching favorite music (7 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        2.43 s
+```
+
+# Summary
+
+In this post, we've not only learned about why we need to write automated tests but also some of the principles and guidelines that we should keep in mind while writing tests.
+
+We've also used the `Jest testing framework` to write basic tests for our `calculator` project. Specifically, we've explored how to work with `expect` and `Matchers` to validate the results of our tests.
+
+Moreover, we've learned how to use `Mock` and `Stub` to isolate our tests by separating the dependencies. When we want to test the behavior of the dependencies, like how many times the function has been called, `Mock` is a better choice than `Stub`. On the other hand, when we want our dependency to simply return some values, `Stub` is a better choice than Mock.
+
+In the next post, we will learn about how to write tests for a `React` application. We will use `React Testing Library` and `Jest` to write `Unit` and `Integration` tests. Then, we will use `Cypress` to write `End-to-End` tests.
