@@ -1,0 +1,43 @@
+---
+title: Automated Test - Frontend
+slug: 'automated-test-frontend'
+description: 'Understanding automated test'
+publishedAt: '2023-10-09'
+status: 'published'
+tags: 'test,react,vi'
+postTitle: 'Automated Test - Frontend'
+category: 'dev'
+---
+
+This post is the second part of the series about understanding automated testing. In the previous post, we learned the `basics` of how to write a unit test for a calculator project. We also introduced `mocks` and `stubs` to effectively isolate the unit test environment.
+
+In this post, we will explore a common style for organizing a unit test. Afterward, we will proceed to write both unit and integration tests for a React project. Finally, we will cover writing an E2E test.
+
+# GivenWhenThen Testing Style
+
+`GivenWhenThen` is a common style for structurally organizing a unit test. The idea is to seperate the test into three sections:
+
+First, the `Given` section is where we set up the "precondition" to test environment. For example, if we are testing a React component with props, we could set up the props for testing purposes.  
+
+Second, the  `When` section is where we execute the test. For example, we could render the component we just set up in the `Given` section.
+
+Fianlly, the  `Then` section is where we check whether the result of the test is what we expected. For example, we could check if the component has been rendered as expected.
+
+For more information, please refer to [this](https://martinfowler.com/bliki/GivenWhenThen.html) article.
+
+# Unit && Integration Test - React
+
+The sepration between `unit` and `integration` test is blur. Indeed, teams may have different definitions for these two terms. 
+
+In this post, we will define `unit` test as testing a single component. `integration` test as testing a specific url `route`.
+
+## `Set` up
+
+For this post, I have created a Vite project with React. 
+
+## `Component` test
+
+## `Integration` test
+
+# E2E Test
+
