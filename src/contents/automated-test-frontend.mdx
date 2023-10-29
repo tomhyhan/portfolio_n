@@ -26,6 +26,7 @@ Finally, the `Then` section is where we check whether the result of the test is 
 In this post, we will simply separate these sections with a new line.
 
 e.g.
+
 ```text
 ...set up the test environment (Given)
 
@@ -38,7 +39,7 @@ For more information, please refer to [this](https://martinfowler.com/bliki/Give
 
 # Unit && Integration Test - React
 
-The sepration between `unit` and `integration` tests is blurry. Indeed, teams may have different definitions for these two terms. 
+The sepration between `unit` and `integration` tests is blurry. Indeed, teams may have different definitions for these two terms.
 
 In this post, we will define `unit` test as testing a single component and an `integration` test as testing a specific URL `route`.
 
@@ -55,6 +56,7 @@ The full code can be found [here](https://github.com/tomhyhan/js-tests/tree/main
 To start, we will write a unit test for the `AddImage` and `Image` component.
 
 ## `AddImage` Component
+
 <Collapse>
 ```javascript
 import React from 'react'
@@ -69,18 +71,34 @@ export default function AddImage({onAddImage}: {
         onAddImage(imageLayout!.toString())
     }
 
-  return (
-    <form className="flex p-5" onSubmit={handleImageAdd}>
-        <select name="imageLayout" defaultValue="normal" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded block mr-5">
-            <option key={0}value="normal">normal</option>
-            <option key={1} value="blur">blur</option>
-            <option key={2}value="grayscale">grayscale</option>
-        </select>
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Image</button>
-    </form>
-  )
-}
-```
+return (
+
+<form className='flex p-5' onSubmit={handleImageAdd}>
+  <select
+    name='imageLayout'
+    defaultValue='normal'
+    className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded block mr-5'
+  >
+    <option key={0} value='normal'>
+      normal
+    </option>
+    <option key={1} value='blur'>
+      blur
+    </option>
+    <option key={2} value='grayscale'>
+      grayscale
+    </option>
+  </select>
+  <button
+    type='submit'
+    className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+  >
+    Add Image
+  </button>
+</form>
+) }
+
+````
 </Collapse>
 
 The `AddImage` component renders a form with 3 options: `normal`, `blur`, and `grayscale`. It also takes `onAddImage` as a prop. When the user clicks the `Add Image` button, it will call the `onAddImage` function and pass in the option value.
@@ -97,7 +115,7 @@ import userEvent from "@testing-library/user-event";
 
 describe("Addimage", () => {
     const onAddImage = vi.fn();
-    
+
     afterEach(() => {
         onAddImage.mockReset()
     })
@@ -115,9 +133,10 @@ describe("Addimage", () => {
         await userEvent.click(button)
         expect(onAddImage).toHaveBeenCalledOnce()
     })
-    
+
 })
-```
+````
+
 Before each test, we are going to set up a mock function for `onAddImage` to isolate our testing environment. After each test, we are going to reset the mock.
 
 For the first test, we will use the `render` function from `react-testing-library` to render the component. The `render` function returns `asFragment`, which can be used to generate a `snapshot`. If the UI changes, our test will fail, prompting us to update the snapshot.
@@ -125,6 +144,7 @@ For the first test, we will use the `render` function from `react-testing-librar
 For the second test, we will use `screen.getByRole` from `react-testing-library` to get the `button` element. Then, we will use `userEvent` to simulate the user clicking the button. Finally, we will check if the `onAddImage` function is called only once.
 
 ## `AddImage` Component
+
 <Collapse>
 ```javascript
 import React from 'react'
@@ -147,8 +167,10 @@ export default function Image({image}: {
             <img src={image.download_url} alt={image.author} onClick={handleImageClick}/>
         </li>
     )
+
 }
-```   
+
+````
 </Collapse>
 
 The `Image` component takes in `image` data as a prop and renders the image. When the user clicks the image, it will navigate to the `/images/${image.id}` page with the `image` data.
@@ -200,20 +222,20 @@ describe('Image', () => {
   }
 });
 
-```
+````
+
 Since our components use `useNavigate`, we need to wrap our component with a `MemoryRouter` to test it. This pattern will occur often in our tests, so we will create a `withRouter` function to abstract this pattern into a function.
 
 ```javascript
-export function withRouter(routes: React.ReactNode, pathInfo: string = "/") {
-    return (
-        <MemoryRouter initialEntries={[pathInfo]}>
-            <Routes>
-                {routes}
-            </Routes>
-        </MemoryRouter>
-    )
+export function withRouter(routes: React.ReactNode, pathInfo: string = '/') {
+  return (
+    <MemoryRouter initialEntries={[pathInfo]}>
+      <Routes>{routes}</Routes>
+    </MemoryRouter>
+  );
 }
 ```
+
 The `withRouter` function takes `routes` and `pathInfo` as parameters. `routes` represents the component we want to test, and `pathInfo` represents the path we want to test. The default value for `pathInfo` is `/`.
 
 Using our `withRouter` function, we will create a `snapshot` test.
@@ -221,7 +243,11 @@ Using our `withRouter` function, we will create a `snapshot` test.
 Next, we will test if the user is routed to the correct page when the image is clicked. Initially, our test will render the `Image` component with the `fakeImage` data because the current path is `/`. When a user clicks the image, they will navigate to the `/images/${fakeImage.id}` page, and the `imageDetailComponent` will render. Finally, we will check if the `fakeImage` data is correctly rendered on the page.
 
 <Note>
-We did not test the `useNavigate` function or attempt to mock it. `useNavigate` is a part of the `library`. Therefore, we assume the library works correctly and implements its own ways to test the functions. However, we could still try to mock the `useNavigate` function, but I think it's unnecessarily complicating our tests.
+  We did not test the `useNavigate` function or attempt to mock it.
+  `useNavigate` is a part of the `library`. Therefore, we assume the library
+  works correctly and implements its own ways to test the functions. However, we
+  could still try to mock the `useNavigate` function, but I think it's
+  unnecessarily complicating our tests.
 </Note>
 
 ## `Integration` test
@@ -257,28 +283,31 @@ The `ImageDetail` component is relatively simple. It receives the `image` data f
 To test the `ImageDetail` component, we will use `snapshot` testing to render the component as we expect with the provided `image` data.
 
 ```javascript
-import { render } from "@testing-library/react";
+import { render } from '@testing-library/react';
 import ImageDetail from '../ImageDetail';
-import { describe, it } from "vitest";
-import { withRouter }from  "../../test/utils";
-import { Route } from "react-router-dom";
+import { describe, it } from 'vitest';
+import { withRouter } from '../../test/utils';
+import { Route } from 'react-router-dom';
 import { fakeImage } from '../../test/fakeData';
 
-describe("ImageDetail", () => {
-    it("renders ImageDetail correctly with video state", async () => {
-
-        const {asFragment} = render(withRouter(<Route path="/" element={<ImageDetail />} />,{
-            pathname: "/",
-            state: {image: fakeImage},
-            key: "my-key"
-        }))
-        expect(asFragment()).toMatchSnapshot()
-    })
-})
+describe('ImageDetail', () => {
+  it('renders ImageDetail correctly with video state', async () => {
+    const { asFragment } = render(
+      withRouter(<Route path='/' element={<ImageDetail />} />, {
+        pathname: '/',
+        state: { image: fakeImage },
+        key: 'my-key',
+      })
+    );
+    expect(asFragment()).toMatchSnapshot();
+  });
+});
 ```
+
 The `MemoryRouter` allows us to define the `pathname` and `state` for the `ImageDetail` component. We will pass the `image` data as the `state` to the `ImageDetail` component. Then, we will use `asFragment` to create a `snapshot`.
 
 ## `Images` Component
+
 <Collapse>
 ```javascript
 import React from 'react'
@@ -312,9 +341,11 @@ export default function Images() {
                 ))}
             </ul>
         </main>
-  )
+
+)
 }
-```
+
+````
 </Collapse>
 The `Images` component contains all the components we have created so far. It allows users to add random images with options and navigate to the image detail page.
 
@@ -366,7 +397,7 @@ describe('Images', () => {
     renderImage()
 
     expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
-    
+
     await waitFor(() =>
       expect(screen.getAllByRole('listitem')).toHaveLength(fakeImages.length)
     );
@@ -378,7 +409,7 @@ describe('Images', () => {
     });
 
     renderImage()
-    
+
     expect(await screen.findByText(/Something Went Wrong!/)).toBeInTheDocument()
   })
 
@@ -393,7 +424,7 @@ describe('Images', () => {
     expect(await screen.findAllByRole('listitem')).toHaveLength(3)
     const img = await screen.findByAltText(fakeImage.author)
     expect(img.src).toBe("https://foo.bar.download_url/")
-    
+
   })
 
   it("return blur image when add button in clicked", async () => {
@@ -411,7 +442,7 @@ describe('Images', () => {
     expect(await screen.findAllByRole('listitem')).toHaveLength(3)
     const img = await screen.findByAltText(fakeImage.author)
     expect(img.src).toBe("https://foo.bar.download_url/?blur=5")
-    
+
   })
 
   it("return grayscale image when add button in clicked", async () => {
@@ -429,7 +460,7 @@ describe('Images', () => {
     expect(await screen.findAllByRole('listitem')).toHaveLength(3)
     const img = await screen.findByAltText(fakeImage.author)
     expect(img.src).toBe("https://foo.bar.download_url/?grayscale")
-    
+
   })
 
   function renderImage() {
@@ -441,20 +472,23 @@ describe('Images', () => {
     );
   }
 });
-```
+````
+
 Similar to `withRouter`, our component depends on the `ImageProvider` context. Let's create a `withContext` function to render our component with the `ImageProvider` context.
 
 ```javascript
-export function withContext(children: React.ReactNode, imageService: ImageService) {
-    return (
-        <ImageContext.Provider value={{imageService}}>
-            <SWRConfig value={{ provider: () => new Map() }}>
-                {children}
-            </SWRConfig>
-        </ImageContext.Provider>
-    )
+export function withContext(
+  children: React.ReactNode,
+  imageService: ImageService
+) {
+  return (
+    <ImageContext.Provider value={{ imageService }}>
+      <SWRConfig value={{ provider: () => new Map() }}>{children}</SWRConfig>
+    </ImageContext.Provider>
+  );
 }
 ```
+
 The `withContext` function takes `children` and `imageService` as parameters. `children` represents the component we want to test, and `imageService` is a service module that handles business logic and data fetching. To isolate our test environment, we will mock the `imageService` and pass it to the `ImageContext.Provider` as a value. We will also wrap our `children` with `SWRConfig` to remove the cache for each test.
 
 Next, we will create a `fakeImageService` to mock the `imageService` module. We will mock the `getImages` and `getImage` functions because our component depends on these two functions. Before each test, the `getImages` function will return `fakeImages` data. After each test, we will reset all the mocks.
@@ -530,7 +564,7 @@ baseUrl: "http://localhost:5173",
 Also, to use `cypress-testing-library`, we will add the following code to `cypress/support/commands.ts`.
 
 ```javascript
-import '@testing-library/cypress/add-commands'
+import '@testing-library/cypress/add-commands';
 ```
 
 Next, since our application is simple, we will only create one test file to test our application.
@@ -540,53 +574,64 @@ Next, since our application is simple, we will only create one test file to test
 /// <reference types="@testing-library/cypress" />
 
 describe('Random Image app', () => {
+  beforeEach(() => {
+    cy.intercept('GET', /\/v2\/list/, {
+      fixture: 'images.json',
+    });
 
-    beforeEach(() => {
-        cy.intercept("GET", /\/v2\/list/ ,{
-            fixture: "images.json"
-        })
+    cy.intercept('GET', /\/id\/\d+\/info/, {
+      fixture: 'image.json',
+    });
 
-        cy.intercept("GET", /\/id\/\d+\/info/ ,{
-            fixture: "image.json"
-        })
+    cy.visit('/');
+  });
 
-        cy.visit('/')
-    })
+  it('renders 3 images when page is rendered', () => {
+    cy.findAllByRole('img').should('have.length', 3);
+  });
 
-    it('renders 3 images when page is rendered', () => {
-        cy.findAllByRole("img").should("have.length", 3)
-    })
-  
-    it('shows image detail when image is clicked', () => {
-        cy.findAllByRole("img").first().click()
-        cy.findByText("https://picsum.photos/id/12/2500/1667").should("exist")
-        cy.findByText("12").should("exist")
-        cy.findByText("Paul Jarvis").should("exist")
-    })
-  
-    it("add a new normal image when add image button is clicked", () => {
-        cy.findByRole("button").click()
-        cy.findAllByRole("img").should("have.length", 4)
-        cy.findByAltText("foo bar").should("exist")
-        cy.findByAltText("foo bar").should("have.attr", "src", "https://picsum.photos/id/669/4869/3456")
-    })
+  it('shows image detail when image is clicked', () => {
+    cy.findAllByRole('img').first().click();
+    cy.findByText('https://picsum.photos/id/12/2500/1667').should('exist');
+    cy.findByText('12').should('exist');
+    cy.findByText('Paul Jarvis').should('exist');
+  });
 
-    it("add a new blur image when add image button is clicked", () => {
-        cy.findByRole("combobox").select("blur")
-        cy.findByRole("button").click()
-        cy.findAllByRole("img").should("have.length", 4)
-        cy.findByAltText("foo bar").should("exist")
-        cy.findByAltText("foo bar").should("have.attr", "src", "https://picsum.photos/id/669/4869/3456?blur=5")
-    })
+  it('add a new normal image when add image button is clicked', () => {
+    cy.findByRole('button').click();
+    cy.findAllByRole('img').should('have.length', 4);
+    cy.findByAltText('foo bar').should('exist');
+    cy.findByAltText('foo bar').should(
+      'have.attr',
+      'src',
+      'https://picsum.photos/id/669/4869/3456'
+    );
+  });
 
-    it("add a grayscale image when add image button is clicked", () => {
-        cy.findByRole("combobox").select("grayscale")
-        cy.findByRole("button").click()
-        cy.findAllByRole("img").should("have.length", 4)
-        cy.findByAltText("foo bar").should("exist")
-        cy.findByAltText("foo bar").should("have.attr", "src", "https://picsum.photos/id/669/4869/3456?grayscale")
-    })
-})
+  it('add a new blur image when add image button is clicked', () => {
+    cy.findByRole('combobox').select('blur');
+    cy.findByRole('button').click();
+    cy.findAllByRole('img').should('have.length', 4);
+    cy.findByAltText('foo bar').should('exist');
+    cy.findByAltText('foo bar').should(
+      'have.attr',
+      'src',
+      'https://picsum.photos/id/669/4869/3456?blur=5'
+    );
+  });
+
+  it('add a grayscale image when add image button is clicked', () => {
+    cy.findByRole('combobox').select('grayscale');
+    cy.findByRole('button').click();
+    cy.findAllByRole('img').should('have.length', 4);
+    cy.findByAltText('foo bar').should('exist');
+    cy.findByAltText('foo bar').should(
+      'have.attr',
+      'src',
+      'https://picsum.photos/id/669/4869/3456?grayscale'
+    );
+  });
+});
 ```
 
 We start by referencing `cypress` and `cypress-testing-library` because they provide type definitions.
@@ -605,7 +650,18 @@ Finally, we perform the same test for the `grayscale` option and check if the `s
 
 # Running Tests
 
-The test passes!
+When running the test, we should get the following result.
 
+<PostImage imagesrc={'/utils/e2e.png'} classAttr='my-5 h-40 relative' />
+
+All tests passed!
 
 # Conclusion
+
+In this post, we learned how to write unit and integration tests using `vitest` and `react-testing-library`. We also learned how to write E2E tests using `Cypress`.
+
+While unit and integration tests are quick and reliable, they do not necessarily ensure that our application works as expected in a real browser environment. On the other hand, E2E tests are slow and flaky, but they ensure that our application works as expected in a real browser environment. Finding the right balance between these two types of tests is crucial for a healty application.
+
+We focused on testing a React project. However, the concepts we learned can be applied to other frameworks as well.
+
+In the next post, we will learn how to write tests for a backend.

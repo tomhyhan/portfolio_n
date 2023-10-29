@@ -9,30 +9,35 @@ postTitle: 'Comment & Next.js'
 category: 'dev'
 ---
 
-Comment System is a very common feature in many websites. However, it might not be as easy to implement it especially with replies. In this post, I will share my experience on how I implemented the Comment System with replies in Next.js. 
+Comment System is a very common feature in many websites. However, it might not be as easy to implement it especially with replies. In this post, I will share my experience on how I implemented the Comment System with replies in Next.js.
 
 # Final Result
 
 The final Comment System looks like this:
 
 <Collapse>
-    <PostImage imagesrc="/dev/nextjs-comment-final.png"></PostImage> 
+  <PostImage
+    imagesrc='/dev/nextjs-comment-final.png'
+    classAttr='my-5 w-full h-[50rem] relative'
+  />
 </Collapse>
 
 # Prerequisite
 
 You should already have a Nextjs project with the following features:
-    
+
     1. Some kind of Post (blog, product, etc.)
     2. Authentication
 
 <Information>
-    If you wonder how to implement Authentication in Nextjs in quick and easy way, you could checkout my previous post on how to implement [next-auth](https://www.tomhyhan.com/dev/Next.js-oauth-2) 
+  If you wonder how to implement Authentication in Nextjs in quick and easy way,
+  you could checkout my previous post on how to implement
+  [next-auth](https://www.tomhyhan.com/dev/Next.js-oauth-2)
 </Information>
 
-# Comments Container 
+# Comments Container
 
-The comment container is a component that contains all other components and logics that are related to comments. 
+The comment container is a component that contains all other components and logics that are related to comments.
 
 ```javascript
 "use client"
@@ -54,16 +59,16 @@ export default function Comments({slug}: {
     if (commentController.networkError) {
         throw commentController.networkError
     }
-    
+
     if (commentController.error) {
         throw commentController.error
     }
 
-    
+
     const commentForm = (parent: string) => (
         <CommentForm slug={slug} postComment={commentController.postComment} comments={commentController.data as CommentList} parent={parent}/>
     )
-    
+
     return (
         <section className="bg-white antialiased mt-16">
             <div className=" mx-auto">
@@ -71,131 +76,140 @@ export default function Comments({slug}: {
                     <h2 className="text-lg lg:text-2xl font-bold text-gray-900 ">Comments</h2>
                 </div>
                 {commentForm("COMMENT#root")}
-                <Comment 
+                <Comment
                 commentController={commentController}
-                slug={slug} 
-                commentForm={commentForm} 
-                margin={5} 
-                parentid={"COMMENT#root"} 
+                slug={slug}
+                commentForm={commentForm}
+                margin={5}
+                parentid={"COMMENT#root"}
                 />
             </div>
         </section>
   )
 }
 ```
-I will explain the `commentController` in a bit, but it is a custom hook that handles all the logics related to comments. 
+
+I will explain the `commentController` in a bit, but it is a custom hook that handles all the logics related to comments.
 
 The `commentForm` handles posting comments or replying to other comments. it takes a `parent` parameter that is used to determine if the comment is a reply or a comment.
 
-The `Comment` component is a `recursive component` that renders comments and replies. It takes base `parentid` and `margin` as a starting point to render comments. 
+The `Comment` component is a `recursive component` that renders comments and replies. It takes base `parentid` and `margin` as a starting point to render comments.
 
 # Comment Controller
 
 The comment controller is a custom hook that handles all the logics related to comments.
 
 ```javascript
-import React, { useEffect, useRef, useState } from 'react'
-import { CommentBody } from './Type'
+import React, { useEffect, useRef, useState } from 'react';
+import { CommentBody } from './Type';
 import useSWR from 'swr';
 import fetchWrapper from './http/fetch-wrapper';
 
 async function getComments(url: string) {
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-        console.error(await response.json())
-        throw new Error('Error getting comments');
-    }
-    const comments = await response.json();
-    return comments;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    console.error(await response.json());
+    throw new Error('Error getting comments');
+  }
+  const comments = await response.json();
+  return comments;
 }
 
 export default function UseComment(postId: string) {
-    const {data, isLoading, error, mutate } = useSWR(
-        `${process.env.BASE_URL}/api/comments?postId=${postId}`, (url:string) => getComments(url), {
-            dedupingInterval: 1000,            
-            fallback: []
-        },
-    )
-    const [isEditing, setIsEditing] = useState<string|null>(null)
-    const [networkError, setNetworkError] = useState<unknown|null>(null)
-    const isNew = useRef<string|null>(null)
-    const editCommentRef = useRef<HTMLTextAreaElement | null>(null)
-    const commentRef = useRef<HTMLDivElement|null>(null)
-
-    useEffect(() => {
-        editCommentRef.current?.focus()
-    },[editCommentRef.current])
-
-    
-    useEffect(() => { 
-        commentRef.current?.scrollIntoView({behavior: "smooth"})
-    }, [commentRef.current, commentRef, isNew, isNew.current])
-    
-
-    const handleIsEditing = async (commentId: string) => {
-        isNew.current = commentId 
-        setIsEditing(commentId)
+  const { data, isLoading, error, mutate } = useSWR(
+    `${process.env.BASE_URL}/api/comments?postId=${postId}`,
+    (url: string) => getComments(url),
+    {
+      dedupingInterval: 1000,
+      fallback: [],
     }
+  );
+  const [isEditing, setIsEditing] = (useState < string) | (null > null);
+  const [networkError, setNetworkError] = (useState < unknown) | (null > null);
+  const isNew = (useRef < string) | (null > null);
+  const editCommentRef = (useRef < HTMLTextAreaElement) | (null > null);
+  const commentRef = (useRef < HTMLDivElement) | (null > null);
 
-    const postComment = async (body: CommentBody) => {
-        try {
-            const commentReponse = await fetchWrapper(`${process.env.BASE_URL}/api/comments`, {
-                method: 'POST',
-                body: JSON.stringify(body),
-            })
-            isNew.current = commentReponse.pk.S
-            await mutate()
-        } catch (error) {
-            setNetworkError(error)
+  useEffect(() => {
+    editCommentRef.current?.focus();
+  }, [editCommentRef.current]);
 
+  useEffect(() => {
+    commentRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [commentRef.current, commentRef, isNew, isNew.current]);
+
+  const handleIsEditing = async (commentId: string) => {
+    isNew.current = commentId;
+    setIsEditing(commentId);
+  };
+
+  const postComment = async (body: CommentBody) => {
+    try {
+      const commentReponse = await fetchWrapper(
+        `${process.env.BASE_URL}/api/comments`,
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
         }
+      );
+      isNew.current = commentReponse.pk.S;
+      await mutate();
+    } catch (error) {
+      setNetworkError(error);
+    }
+  };
 
+  const editComment = async (
+    commentId: string,
+    comment: string,
+    parentId: string
+  ) => {
+    try {
+      await fetchWrapper(`${process.env.BASE_URL}/api/comments`, {
+        method: 'PUT',
+        body: JSON.stringify({ commentId, comment }),
+      });
+    } catch (error) {
+      setNetworkError(error);
     }
 
-    const editComment = async (commentId: string, comment: string, parentId: string) => {
-        try {
-            await fetchWrapper(`${process.env.BASE_URL}/api/comments`, {
-                    method: 'PUT',
-                    body: JSON.stringify({commentId, comment}),
-            })
-        } catch (error) {
-            setNetworkError(error)
+    isNew.current = commentId;
+    editCommentRef.current = null;
+    setIsEditing(null);
+    await mutate();
+  };
+
+  const deleteComment = async (commentId: string, parentId: string) => {
+    commentId = commentId.replace('COMMENT#', '');
+    try {
+      await fetchWrapper(
+        `${process.env.BASE_URL}/api/comments?commentId=${commentId}`,
+        {
+          method: 'DELETE',
         }
+      );
+      isNew.current = commentId;
+      await mutate();
+    } catch (error) {
+      setNetworkError(error);
+    }
+  };
 
-        isNew.current = commentId
-        editCommentRef.current = null
-        setIsEditing(null)
-        await mutate()
-    }
-    
-    const deleteComment = async (commentId: string, parentId: string) => {
-        commentId=commentId.replace("COMMENT#", "")
-        try {
-            await fetchWrapper(`${process.env.BASE_URL}/api/comments?commentId=${commentId}`, {
-                method: 'DELETE',
-            })
-            isNew.current = commentId
-            await mutate()
-        } catch (error) {
-            setNetworkError(error)
-        }
-    }
-    
-    
-  return {postComment, 
-        data, 
-        isLoading, 
-        error, 
-        networkError,
-        deleteComment,
-        editComment,
-        isEditing,
-        handleIsEditing,
-        editCommentRef,
-        commentRef,
-        isNew,
-    }
+  return {
+    postComment,
+    data,
+    isLoading,
+    error,
+    networkError,
+    deleteComment,
+    editComment,
+    isEditing,
+    handleIsEditing,
+    editCommentRef,
+    commentRef,
+    isNew,
+  };
 }
 ```
 
@@ -205,30 +219,31 @@ The code might look a bit complicated since there seems to be a lot of things go
     2. Posting comments
     3. Editing comments
     4. Deleting comments
-    5. Scrolling to the new comment with `isNew` ref 
+    5. Scrolling to the new comment with `isNew` ref
     6. Changing focus when editing comments with `isEditing` ref
 
 The `fetchWrapper` is a thin wrapper around `fetch` async function that throws errors when the response was `not ok` with a proper error message:
-    
+
 ```javascript
-export default async function fetchWrapper(url: string, options : any) {
-    try{
-        const res = await fetch(url, {
-            ...options
-        })
-    
-        if (!res.ok) {
-            const {message} = await res.json(); 
-            const errorMsg = message ? message : "Something went wrong" 
-            throw new Error(errorMsg);
-        }
-        return await res.json()
-    } catch (error) {
-        throw error;
+export default async function fetchWrapper(url: string, options: any) {
+  try {
+    const res = await fetch(url, {
+      ...options,
+    });
+
+    if (!res.ok) {
+      const { message } = await res.json();
+      const errorMsg = message ? message : 'Something went wrong';
+      throw new Error(errorMsg);
     }
+    return await res.json();
+  } catch (error) {
+    throw error;
+  }
 }
 ```
-Next, I changed the `isNew.current` to the comment id whenever there is a `post/edit/delete` action. Then, the `Comment` component will scroll to the new or edited comment using `useEffect`. 
+
+Next, I changed the `isNew.current` to the comment id whenever there is a `post/edit/delete` action. Then, the `Comment` component will scroll to the new or edited comment using `useEffect`.
 
 Finally, I called the `mutate` in `useSWR` to re-render the comments.
 
@@ -248,9 +263,9 @@ export default function CommentForm({slug, postComment, parent, comments} : {
     comments: CommentList
 }) {
     const {data: session } = useSession()
-    
+
     const handleCommentSubmit = async (event: React.FormEvent<HTMLFormElement> ) => {
-        event.preventDefault()  
+        event.preventDefault()
         if (!session || !session.user) {
             return
         }
@@ -277,7 +292,7 @@ export default function CommentForm({slug, postComment, parent, comments} : {
                     disabled={!session? true: false}
                     className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none outline-none"
                     rows={5}
-                    placeholder={!session? "Please login to comment": "write comment..."} 
+                    placeholder={!session? "Please login to comment": "write comment..."}
                     required></textarea>
             </div>
             <div className="flex justify-end">
@@ -289,13 +304,14 @@ export default function CommentForm({slug, postComment, parent, comments} : {
 }
 
 ```
+
 The above component first checks if the user is authenticated. If not, it shows a message that the user needs to login to comment and disable the textarea.
 
 Otherwise, the component shows the textarea form to post comments or replies. When user clicks a `post` button, the `handleCommentSubmit` function is called. It first checks if the user is authenticated. Then, the body of the comment is created and passed on to the `postComment` function that sends a post request to the server.
 
 # Comment Component
 
-The `Comment` component is a recursive component that renders comments and replies. It takes base `parentid` and `margin` as a starting point to render comments. 
+The `Comment` component is a recursive component that renders comments and replies. It takes base `parentid` and `margin` as a starting point to render comments.
 
 ```javascript
 import { CommentController } from '@/lib/Type'
@@ -329,19 +345,19 @@ export default function Comment({commentController,slug,margin,parentid,commentF
     <>
         {commentController.data[parentid].map(comment => {
             return (
-                <div key={uuidv4()} 
+                <div key={uuidv4()}
                 ref={commentController.isNew?.current === comment.pk.S? commentController.commentRef : null}>
                     <article  className={`text-base bg-white  border-l-2 border-l-slate-200 pl-2 mb-5`}
                         style={{marginLeft: marginText}}
                         >
-                        {comment.deleted.BOOL 
+                        {comment.deleted.BOOL
                         ? <DeletedComment />
                         :
                         <>
                             <CommentDetail comment={comment} commentController={commentController}/>
                             <Disclosure>
                                 <div className="flex items-center mt-4 space-x-4 mx-5">
-                                    {commentController.isEditing === comment.pk.S 
+                                    {commentController.isEditing === comment.pk.S
                                     ? <button className="flex items-center text-sm text-gray-500 hover:underline font-medium"
                                     onClick={() => handleEdit(comment.pk.S, comment.parentid.S)}
                                     >Edit</button>
@@ -365,29 +381,31 @@ export default function Comment({commentController,slug,margin,parentid,commentF
     )
 }
 ```
+
 For the base case, if `commentController.data` is `null/undefined` or the `parentid` is not in the `commentController.data`, it returns an empty fragment.
 
 Otherwise, the `Comment` component starts by iterating through the comments that have the same `parentid`. The `commentController.data` type looks like this:
 
 ```javascript
 export type CommentList = {
-  [key: string]: DenamoComment[];
+  [key: string]: DenamoComment[],
 };
 
 export type DenamoComment = {
-  GSI1PK: { S: string };
+  GSI1PK: { S: string },
   userImage: {
-    S: string;
-  };
-  userEmail: { S: string };
-  parentid: { S: string };
-  authorid: { S: string };
-  comment: { S: string };
-  pk: { S: string };
-  GSI1SK: { S: string };
-  deleted: { BOOL: boolean };
+    S: string,
+  },
+  userEmail: { S: string },
+  parentid: { S: string },
+  authorid: { S: string },
+  comment: { S: string },
+  pk: { S: string },
+  GSI1SK: { S: string },
+  deleted: { BOOL: boolean },
 };
 ```
+
 The `Key` is the `parendid` and it contains an array of comments that have the same `parentid`. After finishing rendering the comments, it calls the `Comment` component recursively with the `ID` of the current comment and the `margin + 30`.
 
 The comment will show either `DeletedComment` or `CommentDetail` component depending rather the comment is deleted or not. If the `CommentDetail` was rendered, the user will have options to `edit/delete/reply` to the comment.
@@ -400,11 +418,12 @@ The `DeletedComment` component is a simple component that shows a message that t
 export default function DeletedComment() {
   return (
     <div>
-        <i>This comment was deleted by the user</i>
+      <i>This comment was deleted by the user</i>
     </div>
-  )
+  );
 }
 ```
+
 # Comment Detail
 
 The `CommentDetail` component is a component that shows the details of the comment. It also shows the textarea form if the user is editing the comment.
@@ -438,7 +457,7 @@ export default function CommentDetail({comment,commentController}:{
             </div>
         <CommentEdit comment={comment} commentController={commentController}/>
         </footer>
-        {commentController.isEditing === comment.pk.S 
+        {commentController.isEditing === comment.pk.S
         ? <div className="py-2 px-4 mb-4 mx-5 bg-white rounded-lg rounded-t-lg border border-gray-200">
             <textarea ref={commentController.editCommentRef}className='px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none outline-none' rows={3} defaultValue={comment.comment.S} required />
         </div>
@@ -446,90 +465,97 @@ export default function CommentDetail({comment,commentController}:{
             {comment.comment.S}
           </p>
         }
-        
+
     </>
   )
 }
 ```
+
 The component above shows the user's image, email, and the date of the comment. It also shows the `textarea with a original comment (comment form)` if the user is editing the comment.
 
 To edit or delete the comment, the user needs to click the `...` button on the top right side of the comment. It is a dropdown button that shows the `Edit` and `Delete` button.
 
 # Comment Edit
 
-The `CommentEdit` component shows the Edit/delete button if the user is the author of the comment. 
+The `CommentEdit` component shows the Edit/delete button if the user is the author of the comment.
 
 ```javascript
-import { Fragment } from 'react'
-import { Menu, Transition } from '@headlessui/react'
-import { PiDotsThreeOutlineBold } from "react-icons/pi";
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { PiDotsThreeOutlineBold } from 'react-icons/pi';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
 import { CommentController, DenamoComment } from '@/lib/Type';
 
-export default function CommentEdit({comment, commentController}:{
-    comment: DenamoComment,
-    commentController: CommentController
+export default function CommentEdit({
+  comment,
+  commentController,
+}: {
+  comment: DenamoComment,
+  commentController: CommentController,
 }) {
-    const {data, status} = useSession()
-    if (status === "unauthenticated" || data?.user?.email !== comment.userEmail.S) {
-        return <></>
-    }
+  const { data, status } = useSession();
+  if (
+    status === 'unauthenticated' ||
+    data?.user?.email !== comment.userEmail.S
+  ) {
+    return <></>;
+  }
 
-    const handleDelete = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        await commentController.deleteComment(comment.pk.S, comment.parentid.S)
-    }
-    
-    const handleEdit = (event: React.SyntheticEvent) => {
-        event.preventDefault()
-        commentController.handleIsEditing(comment.pk.S)
-    }
+  const handleDelete = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await commentController.deleteComment(comment.pk.S, comment.parentid.S);
+  };
+
+  const handleEdit = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    commentController.handleIsEditing(comment.pk.S);
+  };
 
   return (
-    <Menu as="div" className="relative inline-block text-left">
+    <Menu as='div' className='relative inline-block text-left'>
       <div>
-        <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
-          <PiDotsThreeOutlineBold className="w-5 h-5" />
+        <Menu.Button className='inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50'>
+          <PiDotsThreeOutlineBold className='w-5 h-5' />
         </Menu.Button>
       </div>
 
       <Transition
         as={Fragment}
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
+        enter='transition ease-out duration-100'
+        enterFrom='transform opacity-0 scale-95'
+        enterTo='transform opacity-100 scale-100'
+        leave='transition ease-in duration-75'
+        leaveFrom='transform opacity-100 scale-100'
+        leaveTo='transform opacity-0 scale-95'
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          <div className="py-1">
-                <Menu.Item>
-                    {({ active }) => (
-                    <button
-                        type="submit"
-                        className={clsx(
-                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                        'block w-full px-4 py-2 text-left text-sm'
-                        )}
-                        onClick={handleEdit}
-                    >
-                        Edit
-                    </button>
-                    )}
-                </Menu.Item>
-            <form method="DELETE" onSubmit={handleDelete}>
+        <Menu.Items className='absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
+          <div className='py-1'>
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  type='submit'
+                  className={clsx(
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'block w-full px-4 py-2 text-left text-sm'
+                  )}
+                  onClick={handleEdit}
+                >
+                  Edit
+                </button>
+              )}
+            </Menu.Item>
+            <form method='DELETE' onSubmit={handleDelete}>
               <Menu.Item>
                 {({ active }) => (
                   <button
-                    type="submit"
+                    type='submit'
                     className={clsx(
                       active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                       'block w-full px-4 py-2 text-left text-sm'
                     )}
                   >
-                     Delete
+                    Delete
                   </button>
                 )}
               </Menu.Item>
@@ -538,43 +564,42 @@ export default function CommentEdit({comment, commentController}:{
         </Menu.Items>
       </Transition>
     </Menu>
-    
-  )
+  );
 }
 ```
+
 The `CommentEdit` component first checks if the user is authenticated and the user is the author of the comment. If not, it returns an empty fragment.
 
 Otherwise, it shows the `...` button that is a dropdown button. It has two options: `Edit` and `Delete`. The `Edit` button calls the `handleEdit` function that updates the `isEditing` state to the current comment id. The `Delete` button calls the `handleDelete` function that sends a delete request to the server.
 
 # Handling Errors
 
-I used React's `ErrorBoundary` as a single point of error handling. It handles all the errors that are thrown from the components related to comment. 
+I used React's `ErrorBoundary` as a single point of error handling. It handles all the errors that are thrown from the components related to comment.
 
 ```javascript
 <ErrorBoundary FallbackComponent={Fallback}>
-    <Comments slug={slug}/>
+  <Comments slug={slug} />
 </ErrorBoundary>
 ```
-The `ErrorBoundary` wraps around the `Comments` component. If there is an error, it will show the `Fallback` component. 
+
+The `ErrorBoundary` wraps around the `Comments` component. If there is an error, it will show the `Fallback` component.
 
 ```javascript
-"use client";
+'use client';
 
-import React from 'react'
+import React from 'react';
 
-export default function Fallback({ error }: {
-    error: Error
-}) {
-
+export default function Fallback({ error }: { error: Error }) {
   return (
-    <div role="alert">
+    <div role='alert'>
       <p>Something went wrong:</p>
-      <pre style={{ color: "red" }}>{error.message}</pre>
-      <p >Try Reloading the page</p>
+      <pre style={{ color: 'red' }}>{error.message}</pre>
+      <p>Try Reloading the page</p>
     </div>
-  )
+  );
 }
 ```
+
 The Fallback component show the error message and suggests the user to reload the page.
 
 # Adding Comment Routing
@@ -591,7 +616,7 @@ import { ulid } from 'ulid';
 import { generateCommentBlocks } from './../../../lib/comment/utils';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authoption';
- 
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get('postId');
@@ -647,7 +672,7 @@ export async function PUT(request: NextRequest) {
     if (!session) {
       return NextResponse.json({message:'Not Authenticated'}, { status: 401 });
     }
-    
+
     try {
         await putComments(commentId, comment);
         return NextResponse.json({ status: 200 });
@@ -678,16 +703,17 @@ export async function DELETE(request: NextRequest) {
   }
 }
 ```
+
 The above route handles the following requests:
 
-    1. GET: Check if the post id is valid. Then, get all the comments that have the same post id using `getComments` function. The `generateCommentBlocks` takes the comments and returns the `CommentList` type to the frontend. 
+    1. GET: Check if the post id is valid. Then, get all the comments that have the same post id using `getComments` function. The `generateCommentBlocks` takes the comments and returns the `CommentList` type to the frontend.
     2. POST: Checks if the user is authenticated. Then, it creates a new comment using the `postComments` function. The result of the `postComment` function, the new comment, is returned to the frontend.
     3. PUT: Checks if the user is authenticated. Then, it updates the comment using the `putComments` function.
     4. DELETE: Checks if the user is authenticated. Then, it deletes the comment using the `deleteComment` function.
 
 # Comment Data
- 
-I used `AWS DynamoDB` to store the comments. 
+
+I used `AWS DynamoDB` to store the comments.
 
 ```javascript
 import { Comment, DenamoComment } from '@/lib/Type';
@@ -746,27 +772,27 @@ export async function getComments(postid: string) {
 }
 
 export async function putComments(commentId: string, comment: string) {
-    const params = {
-        TableName: config.COMMENT_TABLENAME,
-        Key: {
-          pk: { S: commentId },
-        },
-        UpdateExpression: 'SET #comment = :comment',
-        ExpressionAttributeNames: {
-          '#comment': 'comment',
-        },
-        ExpressionAttributeValues: {
-          ':comment': { S: comment },
-        },
-      };
+  const params = {
+    TableName: config.COMMENT_TABLENAME,
+    Key: {
+      pk: { S: commentId },
+    },
+    UpdateExpression: 'SET #comment = :comment',
+    ExpressionAttributeNames: {
+      '#comment': 'comment',
+    },
+    ExpressionAttributeValues: {
+      ':comment': { S: comment },
+    },
+  };
 
-    const command = new UpdateItemCommand(params);
-    try {
-        await client.send(command);
-    } catch (err) {
-      console.error(err);
-      throw new Error('Error Posting Comment');
-    }
+  const command = new UpdateItemCommand(params);
+  try {
+    await client.send(command);
+  } catch (err) {
+    console.error(err);
+    throw new Error('Error Posting Comment');
+  }
 }
 
 export async function deleteComment(id: string) {
@@ -793,11 +819,12 @@ export async function deleteComment(id: string) {
   }
 }
 ```
+
 The `commentData` file contains all the DynamoDB queries to get, post, put, and delete comments.
 
 # Creating Comment Table
 
-To create a comment table, I used the `aws-cdk` to automate the process. 
+To create a comment table, I used the `aws-cdk` to automate the process.
 
 ```javascript
     new dynamodb.Table(this, <TABLE_TITLE>, {

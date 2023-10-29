@@ -1,11 +1,12 @@
 import Image from 'next/image'
 import React from 'react'
 
-export default function PostImage({imagesrc}: {
-    imagesrc: string
+export default function PostImage({imagesrc, classAttr}: {
+    imagesrc: string,
+    classAttr: string
 }) {
   return (
-    <div className="my-5 w-full h-[50rem] relative">
+    <div className={classAttr}>
         <Image src={imagesrc} fill={true} alt={imagesrc} />
     </div>
   )
