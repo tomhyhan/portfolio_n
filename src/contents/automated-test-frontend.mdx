@@ -2,7 +2,7 @@
 title: Automated Test - Frontend
 slug: 'automated-test-frontend'
 description: 'Understanding automated test'
-publishedAt: '2023-10-09'
+publishedAt: '2023-10-28'
 status: 'published'
 tags: 'test,react,vi'
 postTitle: 'Automated Test - Frontend'
@@ -11,33 +11,601 @@ category: 'dev'
 
 This post is the second part of the series about understanding automated testing. In the previous post, we learned the `basics` of how to write a unit test for a calculator project. We also introduced `mocks` and `stubs` to effectively isolate the unit test environment.
 
-In this post, we will explore a common style for organizing a unit test. Afterward, we will proceed to write both unit and integration tests for a React project. Finally, we will cover writing an E2E test.
+In this post, we will explore a common style for organizing unit tests. After that, we will proceed to write both unit and integration tests for a React project. Finally, we will cover writing an E2E test.
 
 # GivenWhenThen Testing Style
 
-`GivenWhenThen` is a common style for structurally organizing a unit test. The idea is to seperate the test into three sections:
+`GivenWhenThen` (also known as the `Arrange, Act, Assert` pattern) is a common style for structurally organizing a unit test. The idea is to separate the test into three sections:
 
-First, the `Given` section is where we set up the "precondition" to test environment. For example, if we are testing a React component with props, we could set up the props for testing purposes.  
+First, the `Given` section is where we set up the `precondition` for the test environment. For example, if we are testing a React component with props, we could set up the props for testing purposes.
 
-Second, the  `When` section is where we execute the test. For example, we could render the component we just set up in the `Given` section.
+Second, the `When` section is where we execute the test based on the `given` environment. For example, we could render the React component we just set up in the `Given` section.
 
-Fianlly, the  `Then` section is where we check whether the result of the test is what we expected. For example, we could check if the component has been rendered as expected.
+Finally, the `Then` section is where we check whether the result of the test is what we expected. For example, we could check if the component has been rendered as expected.
+
+In this post, we will simply separate these sections with a new line.
+
+e.g.
+```text
+...set up the test environment (Given)
+
+...execute the test (When)
+
+...check the result (Then)
+```
 
 For more information, please refer to [this](https://martinfowler.com/bliki/GivenWhenThen.html) article.
 
 # Unit && Integration Test - React
 
-The sepration between `unit` and `integration` test is blur. Indeed, teams may have different definitions for these two terms. 
+The sepration between `unit` and `integration` tests is blurry. Indeed, teams may have different definitions for these two terms. 
 
-In this post, we will define `unit` test as testing a single component. `integration` test as testing a specific url `route`.
+In this post, we will define `unit` test as testing a single component and an `integration` test as testing a specific URL `route`.
 
 ## `Set` up
 
-For this post, I have created a Vite project with React. 
+I have already created a simple Vite project with React. The app allows users to add random images to the page when the user clicks the `add button`. The image can be `normal`, `blur`, or `grayscale`. When the user clicks the image, it will show the image's `url` and the `author`.
 
-## `Component` test
+Since we are working with a Vite project with React, we will use `Vitest` as our test runner. We will also use `react-testing-library` to access some helpful testing APIs. Finally, we will use `user-event` to simulate user interactions.
+
+The full code can be found [here](https://github.com/tomhyhan/js-tests/tree/main/react_test)
+
+## `Component` testing
+
+To start, we will write a unit test for the `AddImage` and `Image` component.
+
+## `AddImage` Component
+<Collapse>
+```javascript
+import React from 'react'
+
+export default function AddImage({onAddImage}: {
+    onAddImage: (imageLayout:string) => void
+}) {
+    const handleImageAdd = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget);
+        const imageLayout = formData.get('imageLayout')
+        onAddImage(imageLayout!.toString())
+    }
+
+  return (
+    <form className="flex p-5" onSubmit={handleImageAdd}>
+        <select name="imageLayout" defaultValue="normal" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded block mr-5">
+            <option key={0}value="normal">normal</option>
+            <option key={1} value="blur">blur</option>
+            <option key={2}value="grayscale">grayscale</option>
+        </select>
+        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Image</button>
+    </form>
+  )
+}
+```
+</Collapse>
+
+The `AddImage` component renders a form with 3 options: `normal`, `blur`, and `grayscale`. It also takes `onAddImage` as a prop. When the user clicks the `Add Image` button, it will call the `onAddImage` function and pass in the option value.
+
+## testing `AddImage`
+
+There are two things we are going to test for the `AddImage` component. First, we are going to perform a `Snapshots` test to ensure that our component UI renders as expected. Second, we are going to test whether the `onAddImage` function is called when the user clicks the `Add Image` button.
+
+```javascript
+import { render, screen } from "@testing-library/react"
+import {afterEach, describe, expect, it, vi} from "vitest"
+import AddImage from './../AddImage';
+import userEvent from "@testing-library/user-event";
+
+describe("Addimage", () => {
+    const onAddImage = vi.fn();
+    
+    afterEach(() => {
+        onAddImage.mockReset()
+    })
+
+    it("renders Addimage correctly", async () => {
+        const { asFragment } = render(<AddImage onAddImage={onAddImage}/>)
+
+        expect(asFragment()).toMatchSnapshot()
+    })
+
+    it("calls onAddImage when form is submitted", async () => {
+        render(<AddImage onAddImage={onAddImage}/>)
+
+        const button = screen.getByRole("button")
+        await userEvent.click(button)
+        expect(onAddImage).toHaveBeenCalledOnce()
+    })
+    
+})
+```
+Before each test, we are going to set up a mock function for `onAddImage` to isolate our testing environment. After each test, we are going to reset the mock.
+
+For the first test, we will use the `render` function from `react-testing-library` to render the component. The `render` function returns `asFragment`, which can be used to generate a `snapshot`. If the UI changes, our test will fail, prompting us to update the snapshot.
+
+For the second test, we will use `screen.getByRole` from `react-testing-library` to get the `button` element. Then, we will use `userEvent` to simulate the user clicking the button. Finally, we will check if the `onAddImage` function is called only once.
+
+## `AddImage` Component
+<Collapse>
+```javascript
+import React from 'react'
+import { ImageT } from '../lib/Types/ImageT';
+import { useNavigate } from 'react-router-dom';
+
+export default function Image({image}: {
+    image: ImageT
+}) {
+    const navigate = useNavigate()
+
+    const handleImageClick = () => {
+        navigate(`/images/${image.id}`, {
+            state: { image },
+        })
+    }
+
+    return (
+        <li className="px-4 cursor-pointer" onClick={handleImageClick}>
+            <img src={image.download_url} alt={image.author} onClick={handleImageClick}/>
+        </li>
+    )
+}
+```   
+</Collapse>
+
+The `Image` component takes in `image` data as a prop and renders the image. When the user clicks the image, it will navigate to the `/images/${image.id}` page with the `image` data.
+
+## testing `Image`
+
+Similar to the previous test, we are going to implement a `snapshot` test. Then, we are also going to test if the user is routed to the correct page when the image is clicked.
+
+```javascript
+import React from 'react';
+import { describe, expect, it } from 'vitest';
+import { withRouter } from '../../test/utils';
+import { Route } from 'react-router-dom';
+import Image from '../Image';
+import { fakeImage } from '../../test/fakeData';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
+
+describe('Image', () => {
+  it('renders Image', () => {
+    const { asFragment } = render(
+      withRouter(<Route path='/' element={<Image image={fakeImage} />} />)
+    );
+
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('navigate to image detail page', async () => {
+    render(
+      withRouter(
+        <>
+          <Route path='/' element={<Image image={fakeImage} />} />
+          <Route
+            path={`/images/${fakeImage.id}`}
+            element={imageDetailComponent()}
+          />
+        </>
+      )
+    );
+
+    const link = screen.getByRole('img');
+    await userEvent.click(link);
+    expect(screen.getByText(JSON.stringify(fakeImage))).toBeInTheDocument();
+  });
+
+  function imageDetailComponent() {
+    return <pre>{JSON.stringify(fakeImage)}</pre>;
+  }
+});
+
+```
+Since our components use `useNavigate`, we need to wrap our component with a `MemoryRouter` to test it. This pattern will occur often in our tests, so we will create a `withRouter` function to abstract this pattern into a function.
+
+```javascript
+export function withRouter(routes: React.ReactNode, pathInfo: string = "/") {
+    return (
+        <MemoryRouter initialEntries={[pathInfo]}>
+            <Routes>
+                {routes}
+            </Routes>
+        </MemoryRouter>
+    )
+}
+```
+The `withRouter` function takes `routes` and `pathInfo` as parameters. `routes` represents the component we want to test, and `pathInfo` represents the path we want to test. The default value for `pathInfo` is `/`.
+
+Using our `withRouter` function, we will create a `snapshot` test.
+
+Next, we will test if the user is routed to the correct page when the image is clicked. Initially, our test will render the `Image` component with the `fakeImage` data because the current path is `/`. When a user clicks the image, they will navigate to the `/images/${fakeImage.id}` page, and the `imageDetailComponent` will render. Finally, we will check if the `fakeImage` data is correctly rendered on the page.
+
+<Note>
+We did not test the `useNavigate` function or attempt to mock it. `useNavigate` is a part of the `library`. Therefore, we assume the library works correctly and implements its own ways to test the functions. However, we could still try to mock the `useNavigate` function, but I think it's unnecessarily complicating our tests.
+</Note>
 
 ## `Integration` test
 
+In integration testing, we will write tests for the `Images` and `ImageDetail` components, corresponding to the `/images` and `/images/:imageid` routes, respectively. Integration tests may involve more than one component.
+
+## `ImagesDetail` Component
+
+<Collapse>
+```javascript
+import React from 'react'
+import { useLocation } from 'react-router-dom'
+
+export default function ImageDetail() {
+    const {
+        state: {image},
+    } = useLocation()
+    
+  return (
+    <ul>
+        <li>{image.id}</li>
+        <li>{image.download_url}</li>
+        <li>{image.author}</li>
+    </ul>
+  )
+}
+```
+</Collapse>
+The `ImageDetail` component is relatively simple. It receives the `image` data from the `useLocation` function and renders the received `image` data.
+
+## testing `ImagesDetail`
+
+To test the `ImageDetail` component, we will use `snapshot` testing to render the component as we expect with the provided `image` data.
+
+```javascript
+import { render } from "@testing-library/react";
+import ImageDetail from '../ImageDetail';
+import { describe, it } from "vitest";
+import { withRouter }from  "../../test/utils";
+import { Route } from "react-router-dom";
+import { fakeImage } from '../../test/fakeData';
+
+describe("ImageDetail", () => {
+    it("renders ImageDetail correctly with video state", async () => {
+
+        const {asFragment} = render(withRouter(<Route path="/" element={<ImageDetail />} />,{
+            pathname: "/",
+            state: {image: fakeImage},
+            key: "my-key"
+        }))
+        expect(asFragment()).toMatchSnapshot()
+    })
+})
+```
+The `MemoryRouter` allows us to define the `pathname` and `state` for the `ImageDetail` component. We will pass the `image` data as the `state` to the `ImageDetail` component. Then, we will use `asFragment` to create a `snapshot`.
+
+## `Images` Component
+<Collapse>
+```javascript
+import React from 'react'
+import useSWR from 'swr'
+import { useImage } from '../context/ImageProvider'
+import Image from '../component/Image'
+import { ImageT } from '../lib/Types/ImageT'
+import AddImage from '../component/AddImage'
+
+export default function Images() {
+    const {imageService} = useImage()
+    const {data: images, error, isLoading , mutate} = useSWR("images", () => imageService.getImages(), {
+        revalidateOnFocus: false,
+    })
+
+    const handleImageAdd = async (imageLayout:string) => {
+        const newImage = await imageService.getImage(imageLayout)
+        await mutate([...images, newImage], {
+            revalidate:false
+        })
+    }
+
+    return (
+        <main>
+            <AddImage onAddImage={handleImageAdd} />
+            {isLoading && <div>Loading...</div>}
+            {error && <div>Something Went Wrong!</div>}
+            <ul className="grid grid-cols-2 gap-4">
+                {images?.map((image: ImageT) => (
+                    <Image key={image.id} image={image}/>
+                ))}
+            </ul>
+        </main>
+  )
+}
+```
+</Collapse>
+The `Images` component contains all the components we have created so far. It allows users to add random images with options and navigate to the image detail page.
+
+## testing `Images`
+
+To test the component we are going create following tests:
+- rendering all Images list
+- rendering a loading state
+- rendering an error state
+- adding a normal image
+- adding a blur image
+- adding a grayscale image
+
+```javascript
+import { render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { withRouter, withContext } from '../../test/utils';
+import { Route } from 'react-router-dom';
+import Images from '../Images';
+import { fakeBlurImage, fakeGrayscaleImage, fakeImage, fakeImages } from '../../test/fakeData';
+import '@testing-library/jest-dom';
+import userEvent from '@testing-library/user-event';
+
+describe('Images', () => {
+  const fakeImageService = {
+    getImages: vi.fn(),
+    getImage: vi.fn()
+  };
+
+  beforeEach(() => {
+    fakeImageService.getImages.mockImplementation(() => fakeImages);
+  });
+
+  afterEach(() => {
+    fakeImageService.getImages.mockReset();
+    fakeImageService.getImage.mockReset();
+  });
+
+  it('renders all Images list', async () => {
+    const {asFragment} = renderImage()
+
+    expect(fakeImageService.getImages).toHaveBeenCalledOnce();
+    expect(await screen.findAllByRole('listitem')).toHaveLength(fakeImages.length)
+
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('renders loading state',  async () => {
+    renderImage()
+
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+    
+    await waitFor(() =>
+      expect(screen.getAllByRole('listitem')).toHaveLength(fakeImages.length)
+    );
+  });
+
+  it("renders error state when fakeimage thorws an error", async () => {
+    fakeImageService.getImages.mockImplementation(() => {
+        throw new Error()
+    });
+
+    renderImage()
+    
+    expect(await screen.findByText(/Something Went Wrong!/)).toBeInTheDocument()
+  })
+
+  it("return normal image when add button in clicked", async () => {
+    fakeImageService.getImage.mockImplementation(() => fakeImage);
+
+    renderImage()
+
+    const btn = await screen.findByText("Add Image")
+    await userEvent.click(btn)
+
+    expect(await screen.findAllByRole('listitem')).toHaveLength(3)
+    const img = await screen.findByAltText(fakeImage.author)
+    expect(img.src).toBe("https://foo.bar.download_url/")
+    
+  })
+
+  it("return blur image when add button in clicked", async () => {
+    fakeImageService.getImage.mockImplementation(() => fakeBlurImage);
+
+    renderImage()
+
+    const select = await screen.findByRole("combobox")
+    await userEvent.selectOptions(select, ["blur"])
+    expect(screen.getByRole('option', {name: 'blur'}).selected).toBe(true)
+
+    const btn = await screen.findByText("Add Image")
+    await userEvent.click(btn)
+
+    expect(await screen.findAllByRole('listitem')).toHaveLength(3)
+    const img = await screen.findByAltText(fakeImage.author)
+    expect(img.src).toBe("https://foo.bar.download_url/?blur=5")
+    
+  })
+
+  it("return grayscale image when add button in clicked", async () => {
+    fakeImageService.getImage.mockImplementation(() => fakeGrayscaleImage);
+
+    renderImage()
+
+    const select = await screen.findByRole("combobox")
+    await userEvent.selectOptions(select, ["grayscale"])
+    expect(screen.getByRole('option', {name: 'grayscale'}).selected).toBe(true)
+
+    const btn = await screen.findByText("Add Image")
+    await userEvent.click(btn)
+
+    expect(await screen.findAllByRole('listitem')).toHaveLength(3)
+    const img = await screen.findByAltText(fakeImage.author)
+    expect(img.src).toBe("https://foo.bar.download_url/?grayscale")
+    
+  })
+
+  function renderImage() {
+    return render(
+        withContext(
+          withRouter(<Route path='/' element={<Images />} />),
+          fakeImageService
+        )
+    );
+  }
+});
+```
+Similar to `withRouter`, our component depends on the `ImageProvider` context. Let's create a `withContext` function to render our component with the `ImageProvider` context.
+
+```javascript
+export function withContext(children: React.ReactNode, imageService: ImageService) {
+    return (
+        <ImageContext.Provider value={{imageService}}>
+            <SWRConfig value={{ provider: () => new Map() }}>
+                {children}
+            </SWRConfig>
+        </ImageContext.Provider>
+    )
+}
+```
+The `withContext` function takes `children` and `imageService` as parameters. `children` represents the component we want to test, and `imageService` is a service module that handles business logic and data fetching. To isolate our test environment, we will mock the `imageService` and pass it to the `ImageContext.Provider` as a value. We will also wrap our `children` with `SWRConfig` to remove the cache for each test.
+
+Next, we will create a `fakeImageService` to mock the `imageService` module. We will mock the `getImages` and `getImage` functions because our component depends on these two functions. Before each test, the `getImages` function will return `fakeImages` data. After each test, we will reset all the mocks.
+
+Rendering all images in the list: Our first test involves rendering all images from the `fakeImages` data. We will ensure the `getImages` function is called once, and the number of `listitem` elements is the same as the length of `fakeImages`. Then, we will use `asFragment` to create a `snapshot`. Note that we used `findAllByRole` to wait for the images to render.
+
+Rendering a loading state: We will test if the component shows the loading state when it is first rendered and waiting to fetch the data. We will use `getByText` to check if the `Loading...` text is rendered.
+
+Rendering an error state: We will test if the component shows an error state when the `getImages` function throws an error. We will mock the `getImages` function to throw an error. Then we will use `findByText` to check if the `Something Went Wrong!` text is rendered.
+
+Adding a normal image: We will test if the component adds a `normal` image when the `Add Image` button is clicked. First, we will mock the `getImage` function to return a `fakeImage`. Then, we will trigger a `click` event on the `Add Image` button. Finally, we will check if the number of `listitem` elements is increased by one, and the `fakeImage` is rendered on the page.
+
+Adding a blur image: Similar to adding a normal image, but we will select the `blur` option using `userEvent.selectOptions` and check if the `blur` option is selected. Then, we will verify if the `fakeBlurImage` is rendered on the page.
+
+Adding a grayscale image: We will select the `grayscale` option using `userEvent.selectOptions` and check if the `grayscale` option is selected. Then, we will verify if the `fakeGrayScaleImage` is rendered on the page.
+
+## Running Tests
+
+When we run our tests with `npm run test`, we see that all our tests pass!
+
+```bash
+ ✓ src/pages/test/imageDetail.test.jsx (1)
+ ✓ src/component/test/Addimage.test.jsx (2)
+ ✓ src/component/test/Image.test.jsx (2)
+ ✓ src/pages/test/Images.test.jsx (6) 462ms
+
+ Test Files  4 passed (4)
+      Tests  11 passed (11)
+```
+
 # E2E Test
 
+End-to-End (E2E) testing covers the entire process of how an end user would interact with our application in a `realistic browser environment`. While E2E tests are slower and can be less reliable, they ensure that critical features of our application are working as expected. These features include rendering the application in a real browser environment, fetching actual data, handling user authentication and authorization, and processing payments.
+
+There are many tools available for E2E testing, but in this post, we will use `Cypress` because it is easy to set up and relatively faster.
+
+## `Set` up
+
+To set up `Cypress`, we will use `npm` to install `cypress`.
+
+```bash
+npm install cypress --save-dev
+```
+
+We will also install `cypress-testing-library` to access some helpful testing APIs, similar to what we did in our previous sections.
+
+```bash
+npm install --save-dev cypress @testing-library/cypress
+```
+
+Open Cypress, we will add the following script to our package.json file.
+
+```json
+  "scripts": {
+    // ...
+    "cy": "npx cypress open"
+  },
+```
+
+Then we can run `npm run cy` to open `Cypress`.
+
+## `Cypress` testing
+
+Before starting to write tests, we will configure the `baseURL` in `cypress.config.ts` to avoid typing the full URL.
+
+```javascript
+e2e: {
+baseUrl: "http://localhost:5173",
+// ...
+},
+```
+
+Also, to use `cypress-testing-library`, we will add the following code to `cypress/support/commands.ts`.
+
+```javascript
+import '@testing-library/cypress/add-commands'
+```
+
+Next, since our application is simple, we will only create one test file to test our application.
+
+```javascript
+/// <reference types="cypress" />
+/// <reference types="@testing-library/cypress" />
+
+describe('Random Image app', () => {
+
+    beforeEach(() => {
+        cy.intercept("GET", /\/v2\/list/ ,{
+            fixture: "images.json"
+        })
+
+        cy.intercept("GET", /\/id\/\d+\/info/ ,{
+            fixture: "image.json"
+        })
+
+        cy.visit('/')
+    })
+
+    it('renders 3 images when page is rendered', () => {
+        cy.findAllByRole("img").should("have.length", 3)
+    })
+  
+    it('shows image detail when image is clicked', () => {
+        cy.findAllByRole("img").first().click()
+        cy.findByText("https://picsum.photos/id/12/2500/1667").should("exist")
+        cy.findByText("12").should("exist")
+        cy.findByText("Paul Jarvis").should("exist")
+    })
+  
+    it("add a new normal image when add image button is clicked", () => {
+        cy.findByRole("button").click()
+        cy.findAllByRole("img").should("have.length", 4)
+        cy.findByAltText("foo bar").should("exist")
+        cy.findByAltText("foo bar").should("have.attr", "src", "https://picsum.photos/id/669/4869/3456")
+    })
+
+    it("add a new blur image when add image button is clicked", () => {
+        cy.findByRole("combobox").select("blur")
+        cy.findByRole("button").click()
+        cy.findAllByRole("img").should("have.length", 4)
+        cy.findByAltText("foo bar").should("exist")
+        cy.findByAltText("foo bar").should("have.attr", "src", "https://picsum.photos/id/669/4869/3456?blur=5")
+    })
+
+    it("add a grayscale image when add image button is clicked", () => {
+        cy.findByRole("combobox").select("grayscale")
+        cy.findByRole("button").click()
+        cy.findAllByRole("img").should("have.length", 4)
+        cy.findByAltText("foo bar").should("exist")
+        cy.findByAltText("foo bar").should("have.attr", "src", "https://picsum.photos/id/669/4869/3456?grayscale")
+    })
+})
+```
+
+We start by referencing `cypress` and `cypress-testing-library` because they provide type definitions.
+
+Before each test, we want to intercept the response from `getImages` and `getImage` because these functions will give us different images every time. We will use `cy.intercept` to intercept the response and return the `fixture` data instead. Then, we will visit the `/` page, which is our base URL.
+
+For the first test, we will check if three images are rendered on the home page. We will use `cy.findAllByRole` to get all the `img` elements and verify that the number of `img` elements is 3.
+
+Next, we will test if the image detail page is rendered when the image is clicked. We will click the first image and check if the page contains the `image` data that matches with the first item in the `images.json` fixture.
+
+We also test if our application adds a new image when the `Add Image` button is clicked. After clicking the button, we verify that the number of `img` elements increases by one. Then, we check if the new image exists, and its `src` matches with the `download_url` from the `image.json` fixture.
+
+Similarly, we test if our application added a new image with the `blur` option. We select the `blur` option and check if the `src` contains the additional query parameter `?blur=5` in its `download_url`.
+
+Finally, we perform the same test for the `grayscale` option and check if the `src` contains the additional query parameter `?grayscale` in its `download_url`.
+
+# Running Tests
+
+The test passes!
+
+
+# Conclusion
