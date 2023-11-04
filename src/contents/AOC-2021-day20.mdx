@@ -1,0 +1,253 @@
+---
+title: The Advent of C - AOC 2021 day 20
+slug: 'AOC-2021-day20'
+description: 'Solving the advent of code 2021 day 20 in C'
+publishedAt: '2023-11-04'
+status: 'solved'
+tags: '2d matrix,img enhancement'
+postTitle: 'Day 20: Trench Map'
+category: 'algo'
+---
+
+In today's post, I will be sharing yet another interesting problem from Advent of Code 2021 - Day 20. I solved this problem using C, like the previous one. Let's walk through the solution.
+
+# Problem Description
+
+<Collapse>
+
+In Part 1, we are given an `image enhancement algorithm` and the input `image`. Our task is to enhance the given image by replacing each pixel using the algorithm. More specifically, each pixel in the `image` grid is represented as either `#` or `.`. We need to examine the adjacent pixels and extract their bit patterns.
+```text
+#.#
+#..
+### -> 101100111 -> 359
+```
+Then, we need to replace the current pixel with the pixel at index `359` of the `algorithm` array. 
+
+One thing to note is that the given `image` is `infinite` in size, meaning that the `image` grid is much larger than the given `image` input. We need to account for every pixel in the `infinite` image grid.
+
+In Part 1, we are asked to perform the image enhancement `twice` and return the number of `#` pixels in the final image.
+
+In Part 2, nothing changes except that we need to perform the image enhancement `50` times.
+
+</Collapse>
+
+# Input
+
+<Collapse>
+### Sample Input:
+```text
+..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..##
+#..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###
+.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#.
+.#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#.....
+.#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#..
+...####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.....
+..##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#
+
+#..#.
+#....
+##..#
+..#..
+..###
+```
+Full `Input` can be found in [here](https://adventofcode.com/2021/day/20/input). You need to log in to get your input.
+</Collapse>
+
+# Solution 
+
+## Part 1
+
+Let's start by declaring some macro constants. 
+
+```c
+#define MARGIN (100)
+#define IMAGE (100) /* change this to 5 for sample input */ 
+#define IMAGE_SIZE (IMAGE + MARGIN * 2)
+#define DECODE_SIZE (512)
+```
+`MARIN` represents the extra margin size of the `image` grid. The `image` increases its size for every enhancement iteration, and as Part 2 requires 50 iterations, I have set the `margin` to `100` to accommodate the expansion.
+
+`IMAGE` denotes the starting grid size of our input `image`.
+
+`IMAGE_SIZE` encompasses the total size of the `image` grid, including the `margin`.
+
+`DECODE_SIZE` represents the size of the `algorithm` array, as described in the problem statement.
+
+Next, I parse the input text and store the data accordingly.
+
+```c
+void parse_input(FILE *file, char decode[], char image[][IMAGE_SIZE])
+{
+    size_t i = 0, row = MARGIN, col = MARGIN;
+    char ch;
+    while (fscanf_s(file, "%c", &ch, 1) && ch != '\n')
+    {
+        if (ch == '.' || ch == '#')
+        {
+            decode[i++] = ch;
+        }
+    }
+
+    while (fscanf_s(file, "%c", &ch, 1) != EOF)
+    {
+        if (ch == '.' || ch == '#')
+        {
+            image[row][col] = ch;
+            col++;
+            if (col == IMAGE + MARGIN)
+            {
+                row++;
+                col = MARGIN;
+            }
+        }
+    }
+}
+
+void solution(FILE *file)
+{
+    char decode[DECODE_SIZE] = {0};
+    int64_t pixels;
+    char image[IMAGE_SIZE][IMAGE_SIZE];
+    init_image(image);
+
+    parse_input(file, decode, image);
+}
+```
+The `decode` is a character array with size `DECODE_SIZE`. The `image` is a 2D character array with size `IMAGE_SIZE`. The `image` grid is initialized with `.`.
+
+The `parse_input` function first looks for a `char` until the end of a new line and saves it to the `decode` array when the `char` is `.` or `#`. Then, the function parses the rest of the input in a similar logic and saves it to the `image` grid. Note that the starting row and column of the `image` grid is the `MARGIN`.
+
+After parsing the input, it's time to enhance the `image` grid.
+
+```c
+void solution(FILE *file)
+{
+    // ...
+    enhance_image(decode, image, 2);
+}
+
+void enhance_image(char decode[], char image[][IMAGE_SIZE], size_t iteration)
+{
+    size_t i;
+    for (i = 1; i <= iteration; i++) {
+        size_t row, col;
+        size_t l_bound, h_bound;
+        char new_image[IMAGE_SIZE][IMAGE_SIZE];
+        init_image(new_image);
+        l_bound = MARGIN - i ;
+        h_bound = MARGIN + IMAGE + i - 1 ;
+        for (row = l_bound; row <= h_bound; row++) {
+            for (col = l_bound; col <= h_bound; col++) {
+                size_t idx = generate_decode_idx(row, col, image, l_bound, h_bound, i % 2 == 0);
+                new_image[row][col] = decode[idx];
+            }
+        }
+        copy_image(image, new_image);
+    }
+}
+```
+The `enhance_image` function takes the `decode` array, the `image` grid, and the number of `iterations` as input.
+
+For each iteration, a new `image` grid is created and initialized with `.`. This `new_image` grid will be used to store the current enhanced image.
+
+Then, the lower and higher bounds of the `image` grid are calculated, extending one level larger than the current `image` grid.
+
+Next, the code iterates through the `image` grid, examining each pixel to generate the corresponding `decode` index.
+```c
+size_t generate_decode_idx(size_t row, size_t col, char image[][IMAGE_SIZE], size_t l_bound, size_t h_bound, bool is_odd)
+{
+    int32_t i, j;
+    size_t idx = 0;
+    
+    for (i = -1; i < 2; i++)
+    {
+        for (j = -1; j < 2; j++)
+        {
+            size_t nr = row + i, nc = col + j;
+
+            if (is_odd && (nr <= l_bound || nr >= h_bound || nc <= l_bound || nc >= h_bound)) {
+                idx = idx << 1 | 1;
+                continue;
+            }
+
+            if (image[nr][nc] == '#') {
+                idx = idx << 1 | 1;
+            } else {
+                idx = idx << 1 | 0;
+            }
+        }
+    }
+    assert(idx >= 0 && idx < 512);
+    return idx;
+}
+```
+The `generate_decode_idx` function takes the current `row`, `col`, `image` grid, the `lower` and `higher` bounds, and a boolean flag `is_odd`.
+
+The `is_odd` flag is used to determine whether the current iteration is odd or even. With the sample input, there is no need to worry about the `is_odd` flag since the `decode` array at index `0` is `.`. However, in our actual input, the `decode` array at index `0` is `#`. In other words, during odd iterations, every pixel outside of the current `image` boundary will be treated as `#`.
+
+```text
+...    ###
+... -> ###
+...    ###
+```
+Continuing with the `generate_decode_idx` function, the `idx` variable is initialized with the value 0, and it iterates through the adjacent pixels. If the current iteration is odd, and the adjacent pixel is outside of the current `image` boundary, the adjacent pixel is `#`.
+
+To determine the index: if the adjacent pixel is `#`, the function shifts the `idx` to the left by `1` and adds `1` to it. Otherwise, it adds `0` to it.
+
+After generating the `idx`, the `enhance_image` function replaces the pixel in the `new_image` grid with the corresponding pixel in the `decode` array.
+
+Finally, the `copy_image` function copies the contents of the `new_image` grid to the `image` grid.
+
+```c
+void copy_image(char image_dest[][IMAGE_SIZE], char image_src[][IMAGE_SIZE]) {
+    size_t i;
+    for (i=0; i < IMAGE_SIZE; i ++) {
+        memcpy(image_dest[i], image_src[i], sizeof(image_dest[i]));
+    }
+}
+```
+To find the number of `#` pixels in the final image, I simply iterate through the `image` grid and count the number of `#` pixels.
+
+```c
+int64_t lit_pixels(char image[][IMAGE_SIZE]) {
+    int64_t pixels = 0;
+    size_t i,j;
+    for (i = 0; i < IMAGE_SIZE; i++)
+    {
+        for (j = 0; j < IMAGE_SIZE; j++)
+        {
+            if (image[i][j] == '#') {
+                pixels++;
+            }
+        }
+    }
+    return pixels;
+}
+
+void solution(FILE *file)
+{
+    // ...
+    pixels = lit_pixels(image);
+    printf("pixels: %lld\n", pixels);
+}
+```
+
+# Part 2
+
+Part 2 is the same as Part 1, except that the number of iterations needs to be changed to `50` instead of `2`.
+
+```c
+void solution(FILE *file)
+{
+    // ...
+    enhance_image(decode, image, 50);
+}
+```
+
+# Summary
+
+In today's post, I learned about the simpler form of the `image enhancement algorithm`. A real-world example of an image processing algorithm can be found [here](https://en.wikipedia.org/wiki/Kernel_(image_processing)). I also found that bit shifting was very useful for generating an index. It is fast and the code is easy to understand.
+
+I hope you enjoyed this post. If you are interested, you might also have some fun with [AOC 2021 day 20](https://adventofcode.com/2021/day/20)
+
+The full code can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2021/q20.c)
