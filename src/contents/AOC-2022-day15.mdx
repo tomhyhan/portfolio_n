@@ -1,0 +1,271 @@
+---
+title: The Advent of C - AOC 2022 day 15
+slug: 'AOC-2022-day15'
+description: 'Solving the advent of code 2022 day 15 in C and Python'
+publishedAt: '2023-12-02'
+status: 'solved'
+tags: 'manhattan distance,heuristic'
+postTitle: 'Day 15: Beacon Exclusion Zone'
+category: 'algo'
+---
+
+
+In this post, we will be walking through my solution to yet another AOC Challenge. The challenge can be found [here](https://adventofcode.com/2022/day/15). By the way, exciting news! The new AOC problems are out for 2023. If you want to check them out, visit the AOC website.
+
+# Problem Description
+
+<Collapse>
+The full description of today's problem can be found in [here](https://adventofcode.com/2022/day/15).
+
+To provide a brief summary, in part 1, we are given a list of sensors with their positions on a 2D grid and the closest beacon that each sensor can reach. The problem presents us with a single line (e.g., y=10) and asks us to identify all the points within the range of the sensors.
+
+In part 2, instead of a single line, we are given an area to search. Then, we are asked to find a single point where sensors cannot reach.
+</Collapse>
+
+# Input
+
+<Collapse>
+### Sample Input:
+```text
+Sensor at x=2, y=18: closest beacon is at x=-2, y=15
+Sensor at x=9, y=16: closest beacon is at x=10, y=16
+Sensor at x=13, y=2: closest beacon is at x=15, y=3
+Sensor at x=12, y=14: closest beacon is at x=10, y=16
+Sensor at x=10, y=20: closest beacon is at x=10, y=16
+Sensor at x=14, y=17: closest beacon is at x=10, y=16
+Sensor at x=8, y=7: closest beacon is at x=2, y=10
+Sensor at x=2, y=0: closest beacon is at x=2, y=10
+Sensor at x=0, y=11: closest beacon is at x=2, y=10
+Sensor at x=20, y=14: closest beacon is at x=25, y=17
+Sensor at x=17, y=20: closest beacon is at x=21, y=22
+Sensor at x=16, y=7: closest beacon is at x=15, y=3
+Sensor at x=14, y=3: closest beacon is at x=15, y=3
+Sensor at x=20, y=1: closest beacon is at x=15, y=3
+```
+
+Full `Input` can be found in [here](https://adventofcode.com/2022/day/15/input). You need to log in to get your input.
+</Collapse>
+
+# Solution
+
+## Part 1
+
+Let's start by parsing out the input text. We'll iterate through each line, saving the sensor and beacon data.
+
+```python
+class Sensor:
+    def __init__(self, x, y, range):
+        self.x = x
+        self.y = y
+        self.range = range
+
+    def __repr__(self):
+        return f"{self.x} {self.y} {self.range}"
+
+def parse(token):
+    return int(token.split("=")[1].strip(",").strip(":"))
+
+def md(x,y,x1,y1):
+    return abs(x-x1) + abs(y-y1)
+
+def parse_input(filename):
+    lines = open(filename).read().split('\n')
+    sensors = []
+    beacons = set()
+    for line in lines:
+        tokens = line.split()
+        x = parse(tokens[2])
+        y = parse(tokens[3])
+        bx = parse(tokens[-2])
+        by = parse(tokens[-1])
+        sensors.append(Sensor(x,y,md(x,y,bx,by)))
+        beacons.add((bx,by))
+    return sensors, beacons
+```
+We created a `Sensor` class with its position and the distance (range) away from the closest beacon. Beacons are stored in a `Set` to remove duplicated beacons.
+
+Next, we are going to traverse through the sensors and check if the given row is within the range of the sensor. If it is, we are going to check the range of columns that the sensor covers.
+
+```python
+def find_beacons_ranges(sensors, row):
+    beacon_ranges_overlap = []
+    for sensor in sensors:
+        if sensor.range - abs(sensor.y - row) < 0:
+            continue
+        min_x = -(sensor.range - abs(sensor.y - row)) + sensor.x   
+        max_x = sensor.range - abs(sensor.y - row)  + sensor.x
+        beacon_ranges_overlap.append([min_x, max_x])
+
+    beacon_ranges_overlap.sort(key=lambda x: (x[0], -x[1]))
+    return beacon_ranges_overlap
+```
+If the sensor range is less than the Manhattan distance of the row, we know that the row is further away than what the sensor can detect, so we simply `continue`. Otherwise, we create a basic algebraic expression to figure out the `min_x` and `max_x` (|sensor.x - x| = sensor.range - abs(sensor.y - row)).
+
+Once we have built all the sensor detection ranges for a given row, now it's time to merge them together.
+
+```python
+def merge_beacons_ranges(beacon_ranges_overlap):
+    result = []
+    beacon = beacon_ranges_overlap[0]
+    for idx in range(1, len(beacon_ranges_overlap)):
+        start, end = beacon_ranges_overlap[idx]
+        if start <= beacon[1]:
+            beacon[1] = end if end > beacon[1] else beacon[1]
+        else:
+            result.append(beacon)
+            beacon = beacon_ranges_overlap[idx]
+    result.append(beacon)
+    return result
+```
+A typical code for merging overlapping ranges. We start with the first range, which we will call it `beacon`. If the consecutive ranges overlap with the `beacon`, we will update the max range. Otherwise, we append the `beacon` to the result and start with the new `beacon`.
+
+Finally, we print out the result by summing up all the ranges while removing all the beacons in range.
+
+```python
+def part1(sensors, beacons, row):
+    beacon_ranges_overlap = find_beacons_ranges(sensors, row)
+    merge_results = merge_beacons_ranges(beacon_ranges_overlap)
+    print(sum([result[1] - result[0] + 1 for result in merge_results]) - len([beacon for beacon in beacons if beacon[1] == row]))
+```
+You should be able to see the correct result in the terminal console output.
+
+## part 2 - Python
+
+Part 2 is very similar to part 1, but now, we are going to look at all the `rows` from 0 to 4000000. Since there must be only a single point where a beacon can be located, we need to find the ranges that split into a length of 2.
+
+```Python
+def part2(sensors, rows):
+    for i in range(rows):
+        beacon_ranges_overlap = find_beacons_ranges(sensors, i)
+        merge_results = merge_beacons_ranges(beacon_ranges_overlap)
+        if len(merge_results) > 1:
+            print(merge_results, i)
+            print((merge_results[0][1] + 1) * 4000000 + i)
+            break
+```
+When we run the program, we get the following result:
+
+```text
+[[-1541414, 2721113], [2721115, 4602545]] 3367718
+10884459367718
+```
+The answer is `Correct`!! However, it takes a very long time to run the code. Maybe we can improve its speed.
+
+## Part 2 - C 
+
+Interested in how other people approached the problem, I had a look through the subreddit for some clever solutions.
+
+Thanks to some clever approaches, I was able to implement a faster solution in C.
+
+Since we know that there must be a single non-detected point, we will look for the outer layer of the sensors - that is, sensor range + 1. Then, we check if any of these outer layer points can be detected by other sensors.
+
+```c
+#define _CRT_SECURE_NO_WARNINGS
+
+#include "lib.h"
+
+typedef struct{
+    int64_t x, y, d;
+} sensor_t;
+
+typedef struct{
+    int64_t x, y;
+} beacon_t;
+
+static int16_t beacon_hash(int64_t bx, int64_t by) {
+    static beacon_t beacons[30] = {0};
+    static int16_t idx = 0;
+    size_t i;
+
+    for (i=0; i < idx; i++) {
+        beacon_t b = beacons[i];
+        if (b.x == bx && b.y == by) {
+            return -1;
+        }
+    } 
+
+    beacons[idx].x = bx;
+    beacons[idx].y = by;
+
+    return idx++;
+}
+
+int64_t md(int64_t x, int64_t y, int64_t x1, int64_t y1) {
+    return (abs(x-x1) + abs(y-y1));
+}
+
+bool check_distance(PointVector* sensors, int64_t nx, int64_t ny) {
+    size_t i;
+    for(i=0; i < sensors->size; i++) {
+        sensor_t* sensor = sensors->array[i];
+        int64_t distance_to_new = md(nx,ny,sensor->x, sensor->y);
+        if (sensor-> d >= distance_to_new) {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+void find_unique_beacon(PointVector* sensors, beacon_t beacons[]) {
+    size_t i;
+    for (i=0; i < sensors->size; i++) {
+        sensor_t* sensor = sensors->array[i];
+        int64_t dy, dx;
+        for (dx=0; dx <= sensor->d + 1; dx++) {
+            size_t i;
+            int8_t dirs[4][2] = {{1,1}, {-1,1}, {1,-1}, {-1,-1}}; 
+            // expanding by one point
+            dy = (sensor->d + 1) - dx;
+            for (i=0; i < 4; i++){
+                int64_t nx = (sensor-> x + dx) * dirs[i][0];
+                int64_t ny = (sensor-> y + dy) * dirs[i][1];
+                if  (nx >= 0 && nx <= 4000000 && ny >= 0 && ny <= 4000000) {
+                    if (check_distance(sensors, nx, ny)) {
+                        printf("%lld\n", nx * 4000000 + ny);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void solution(FILE* file) {
+    int64_t x, y, bx, by;
+    PointVector* sensors = init_ptr_vector(1000);
+    beacon_t beacons[30] = {0};
+    
+    while (fscanf(file,  "Sensor at x=%lld, y=%lld: closest beacon is at x=%lld, y=%lld\n", &x, &y, &bx, &by) != EOF) {
+        sensor_t* sensor = malloc(sizeof(sensor_t));
+        int64_t idx = beacon_hash(bx, by);
+        beacon_t beacon = {0};
+        
+        sensor->x = x;
+        sensor->y = y;
+        sensor->d = md(x,y,bx,by);
+        push_pv(sensors, sensor);
+        
+        if (idx >= 0) {
+            beacon.x = bx;
+            beacon.y = by;
+            beacons[idx] = beacon;
+        }
+    }; 
+    find_unique_beacon(sensors, beacons);
+
+    free_ptr_vector(sensors);
+}
+
+AOC_MAIN_ONE("./inputs/q15-2023.txt")
+```
+The program runs much faster than the previous solution!
+
+# Summary
+
+In today's AOC challenge, we have explored various ways to solve a problem. In Python, we looked at the ranges of the columns covered by the sensors using the Manhattan distance algebra. In C, we created a clever and faster way to find the answer by looking at the outer layer of each sensor.
+
+I hope you enjoyed this post. If you are interested, you might also have some fun with [AOC 2022 day 15](https://adventofcode.com/2022/day/15)
+
+The full code for Python can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2021/q15.py)
+
+The full code for C can be found in [here](https://github.com/tomhyhan/advent_rust/blob/main/advent-2021/q15-2023.c)
